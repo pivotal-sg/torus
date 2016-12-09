@@ -37,8 +37,7 @@ export class Loading extends Phaser.State {
 
     // LOAD GAME ASSETS HERE
     this.game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
-    this.game.load.tilemap('map', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
-    this.game.load.image('tiles', 'assets/images/tiles.png');
+    this.game.load.image('circle', 'assets/images/largecircle.png');
 
     this.game.load.start();
   }

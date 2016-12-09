@@ -17,6 +17,16 @@ export class Game extends Phaser.State {
 
     this.player = new Player(this.game, this.world.centerX, this.world.centerY);
     // this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
+    let numOfCircles = this.generateRandom(10);
+
+    for (let i = 0; i < numOfCircles; i++) {
+      let circle = this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
+      circle.scale.divide(5, 5);
+    }
+  }
+
+  private generateRandom(number: number) {
+    return Math.ceil(Math.random() * number + 1);
   }
 
   render() {
