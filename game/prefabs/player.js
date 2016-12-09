@@ -6,12 +6,11 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Player = (function (_super) {
     __extends(Player, _super);
-    function Player(game, x, y, platformsLayer) {
+    function Player(game, x, y) {
         _super.call(this, game, x, y, 'dude', 0);
         this.speed = 180;
         game.physics.arcade.enableBody(this);
         game.add.existing(this);
-        this.platformsLayer = platformsLayer;
         this.anchor.set(0.5, 0.5);
         this.animations.add('left', [0, 1, 2, 3], 10, true);
         this.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -23,15 +22,7 @@ var Player = (function (_super) {
             right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
             space: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
         };
-        this.cursors.up.onDown.add(this.jump, this);
-        this.wasd.up.onDown.add(this.jump, this);
-        this.wasd.space.onDown.add(this.jump, this);
     }
-    Player.prototype.jump = function () {
-        if (this.body.blocked.down || this.body.touching.down) {
-            this.body.velocity.y = -350;
-        }
-    };
     Player.prototype.moveLeft = function () {
         this.body.velocity.x = -this.speed;
         this.animations.play('left');
@@ -40,18 +31,39 @@ var Player = (function (_super) {
         this.body.velocity.x = this.speed;
         this.animations.play('right');
     };
+    Player.prototype.moveUp = function () {
+        this.body.velocity.y = -this.speed;
+    };
+    Player.prototype.moveDown = function () {
+        this.body.velocity.y = this.speed;
+    };
     Player.prototype.stop = function () {
         this.body.velocity.x = 0;
-        this.animations.stop();
-        this.frame = 4;
+        this.body.velocity.y = 0;
+        this.stopMoveAnimation();
+    };
+    Player.prototype.stopMoveAnimation = function () {
+        if (this.body.velocity.y == 0 && this.body.velocity.x == 0) {
+            this.animations.stop();
+            this.frame = 4;
+        }
     };
     Player.prototype.update = function () {
-        this.game.physics.arcade.collide(this, this.platformsLayer);
+        var actions = [];
         if (this.cursors.left.isDown || this.wasd.left.isDown) {
-            this.moveLeft();
+            actions.push(this.moveLeft.bind(this));
         }
-        else if (this.cursors.right.isDown || this.wasd.right.isDown) {
-            this.moveRight();
+        if (this.cursors.right.isDown || this.wasd.right.isDown) {
+            actions.push(this.moveRight.bind(this));
+        }
+        if (this.cursors.up.isDown || this.wasd.up.isDown) {
+            actions.push(this.moveUp.bind(this));
+        }
+        if (this.cursors.down.isDown || this.wasd.down.isDown) {
+            actions.push(this.moveDown.bind(this));
+        }
+        if (actions.length > 0) {
+            actions.map(function (action) { return action(); });
         }
         else {
             this.stop();

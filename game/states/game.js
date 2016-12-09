@@ -11,19 +11,9 @@ var Game = (function (_super) {
         _super.apply(this, arguments);
     }
     Game.prototype.create = function () {
-        this.game.time.advancedTiming = true;
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
-        this.game.physics.arcade.gravity.y = 800;
-        var map = this.game.add.tilemap('map');
-        map.addTilesetImage('tiles', 'tiles');
-        var platformsLayer = map.createLayer('platforms');
-        map.setCollision(1, true, platformsLayer);
-        platformsLayer.resizeWorld();
-        this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY, platformsLayer);
-        this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
+        this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY);
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.game.time.fps.toString(), 10, 20, "#ffffff");
     };
     return Game;
 }(Phaser.State));
