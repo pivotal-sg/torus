@@ -58,22 +58,16 @@ export class Player extends Phaser.Sprite {
     // this.animations.play('left');
   }
 
-  stop() {
+
+  stopLeftRight() {
     this.body.velocity.x = 0;
-    this.body.velocity.y = 0;
     this.stopMoveAnimation();
   }
 
-  // @optimize: instead of calling the moveXXX methods every frames, we could just use event listenen on key change
-  // stopLeftRight() {
-  //   this.body.velocity.x = 0;
-  //   this.stopMoveAnimation();
-  // }
-  //
-  // stopUpDown() {
-  //   this.body.velocity.y = 0;
-  //   this.stopMoveAnimation();
-  // }
+  stopUpDown() {
+    this.body.velocity.y = 0;
+    this.stopMoveAnimation();
+  }
 
   stopMoveAnimation() {
     if (this.body.velocity.y == 0 && this.body.velocity.x == 0) {
@@ -104,10 +98,15 @@ export class Player extends Phaser.Sprite {
       actions.push(this.moveDown.bind(this));
     }
 
+    if (actions.filter(action => action == this.moveDown || action == this.moveUp).length == 0) {
+      this.stopUpDown();
+    }
+    if (actions.filter(action => action == this.moveLeft || action == this.moveRight).length == 0) {
+      this.stopLeftRight();
+    }
+
     if (actions.length > 0) {
       actions.map((action) => action());
-    } else {
-      this.stop();
     }
   }
 }
