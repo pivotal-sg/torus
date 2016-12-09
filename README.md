@@ -1,29 +1,22 @@
 # Usage
 
-run `npm install`
+1. Run `npm install && gulp`
 
-run `gulp`
-
-open [http://localhost:8080](http://localhost:8080) to see your game, code changes will cause the page to automatically reload
-
-# Notes
-
-edit [src/ts/app.ts](src/ts/app.ts) for the size, position, font of the game
+1. Open [http://localhost:8080](http://localhost:8080) to see your game, code changes will cause the page to automatically reload
 
 # Deployment
 
-You can deploy to github pages using the following command, which will push your dist folder onto the gh-pages branch of your repo.
+You can deploy to Github pages using the following command, which will push your `dist` folder onto the gh-pages branch of your repo.
+
+`./deploy.sh`
+
+If you need to push a different folder of your project, you can use the `GIT_DEPLOY_DIR` env var.
+<br>
+If you need to push to a different branch, you can use the `GIT_DEPLOY_BRANCH` env var.
+
+Example:
 
 `GIT_DEPLOY_DIR=dist GIT_DEPLOY_BRANCH=gh-pages ./deploy.sh`
 
-After a few minutes your game will be playable at http://USERNAME.github.io/REPOSITORY
+After a few minutes your game will be playable at http://pivotal-sg.github.io/codename
 
-# Thanks
-
-A lot of the code used in this project originated in the source files of this great template -
-
-[https://github.com/kiswa/phaser-template-tsc](https://github.com/kiswa/phaser-template-tsc)
-
-The deploy.sh file came from -
-
-[https://github.com/X1011/git-directory-deploy/raw/master/deploy.sh](https://github.com/X1011/git-directory-deploy/raw/master/deploy.sh)
