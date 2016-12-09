@@ -11,12 +11,10 @@ var Game = (function (_super) {
         _super.apply(this, arguments);
     }
     Game.prototype.create = function () {
-        this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
         this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY);
         var numOfCircles = this.generateRandom(10);
         for (var i = 0; i < numOfCircles; i++) {
-            var circle = this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
-            circle.scale.divide(5, 5);
+            this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
         }
     };
     Game.prototype.generateRandom = function (number) {
