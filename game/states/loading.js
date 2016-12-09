@@ -26,7 +26,8 @@ var Loading = (function (_super) {
         this.loadingText.anchor.setTo(0.5);
         this.game.load.onFileComplete.add(this.fileComplete, this);
         this.game.load.onLoadComplete.add(this.loadComplete, this);
-        this.game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
+        this.game.load.image('outerSpace', 'assets/images/outer-space.jpg');
+        this.game.load.spritesheet('spaceman', 'assets/images/spaceman.png', 86, 144);
         this.game.load.image('circle', 'assets/images/largecircle.png');
         this.game.load.start();
     };
