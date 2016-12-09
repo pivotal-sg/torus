@@ -15,6 +15,8 @@ export class Game extends Phaser.State {
     // map.setCollision(1, true, platformsLayer);
     // platformsLayer.resizeWorld();
 
+    this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
+
     this.player = new Player(this.game, this.world.centerX, this.world.centerY);
     // this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
     let numOfCircles = this.generateRandom(10);

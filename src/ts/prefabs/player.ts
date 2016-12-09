@@ -2,19 +2,15 @@ export class Player extends Phaser.Sprite {
 
   cursors;
   wasd;
-  platformsLayer;
-  speed: number = 180;
+  speed: number = 220;
 
   constructor(game: Phaser.Game, x: number, y: number) {
-    super(game, x, y, 'dude', 0);
+    super(game, x, y, 'spaceman');
     game.physics.arcade.enableBody(this);
     game.add.existing(this);
 
-    // this.platformsLayer = platformsLayer;
-
     this.anchor.set(0.5, 0.5);
-    this.animations.add('left', [0, 1, 2, 3], 10, true);
-    this.animations.add('right', [5, 6, 7, 8], 10, true);
+    this.body.collideWorldBounds = true;
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
     this.wasd = {
@@ -25,57 +21,31 @@ export class Player extends Phaser.Sprite {
       space: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
     };
 
-    // this.cursors.up.onDown.add(this.moveUp, this);
-    // this.wasd.up.onDown.add(this.moveUp, this);
-    // this.cursors.down.onDown.add(this.moveDown, this);
-    // this.wasd.down.onDown.add(this.moveDown, this);
-    // this.wasd.space.onDown.add(this.moveUp, this);
   }
-
-  // jump() {
-  //   if (this.body.blocked.down || this.body.touching.down) {
-  //     this.body.velocity.y = -350;
-  //   }
-  // }
 
   moveLeft() {
     this.body.velocity.x = -this.speed;
-    this.animations.play('left');
   }
 
   moveRight() {
     this.body.velocity.x = this.speed;
-    this.animations.play('right');
   }
 
-  moveUp() {
+  moveUpwards() {
     this.body.velocity.y = -this.speed;
-    // this.animations.play('right');
   }
 
-  moveDown() {
+  moveDownwards() {
     this.body.velocity.y = this.speed;
-    // this.animations.play('left');
   }
-
 
   stopLeftRight() {
     this.body.velocity.x = 0;
-    this.stopMoveAnimation();
   }
 
   stopUpDown() {
     this.body.velocity.y = 0;
-    this.stopMoveAnimation();
   }
-
-  stopMoveAnimation() {
-    if (this.body.velocity.y == 0 && this.body.velocity.x == 0) {
-      this.animations.stop();
-      this.frame = 4;
-    }
-  }
-
 
   update() {
     // this.game.physics.arcade.collide(this, this.platformsLayer);
@@ -91,14 +61,14 @@ export class Player extends Phaser.Sprite {
     }
 
     if (this.cursors.up.isDown || this.wasd.up.isDown) {
-      actions.push(this.moveUp.bind(this));
+      actions.push(this.moveUpwards.bind(this));
     }
 
     if (this.cursors.down.isDown || this.wasd.down.isDown) {
-      actions.push(this.moveDown.bind(this));
+      actions.push(this.moveDownwards.bind(this));
     }
 
-    if (actions.filter(action => action == this.moveDown || action == this.moveUp).length == 0) {
+    if (actions.filter(action => action == this.moveDownwards || action == this.moveUpwards).length == 0) {
       this.stopUpDown();
     }
     if (actions.filter(action => action == this.moveLeft || action == this.moveRight).length == 0) {

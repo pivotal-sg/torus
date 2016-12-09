@@ -40,6 +40,11 @@ export class Loading extends Phaser.State {
     this.game.load.onFileComplete.add(this.fileComplete, this);
     this.game.load.onLoadComplete.add(this.loadComplete, this);
 
+    // LOAD GAME ASSETS HERE
+    this.game.load.image('outerSpace', 'assets/images/outer-space.jpg');
+    this.game.load.spritesheet('spaceman', 'assets/images/spaceman.png', 86, 144);
+    this.game.load.image('circle', 'assets/images/largecircle.png');
+
     this.game.load.start();
   }
 
@@ -51,4 +56,5 @@ export class Loading extends Phaser.State {
     // this.game.state.start('Menu');
     this.game.state.start('Game');
   }
+
 }
