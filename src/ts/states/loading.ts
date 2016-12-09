@@ -8,8 +8,9 @@ export class Loading extends Phaser.State {
     this.load.image('loadingBar', 'assets/images/loading-bar.png');
 
     // LOAD GAME ASSETS HERE
-    this.game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
     this.game.load.image('circle', 'assets/images/largecircle.png');
+    this.game.load.image('outerSpace', 'assets/images/outer-space.jpg');
+    this.game.load.spritesheet('spaceman', 'assets/images/spaceman.png', 40, 67);
   }
 
   create() {
@@ -40,10 +41,6 @@ export class Loading extends Phaser.State {
     this.game.load.onFileComplete.add(this.fileComplete, this);
     this.game.load.onLoadComplete.add(this.loadComplete, this);
 
-    // LOAD GAME ASSETS HERE
-    this.game.load.image('outerSpace', 'assets/images/outer-space.jpg');
-    this.game.load.spritesheet('spaceman', 'assets/images/spaceman.png', 86, 144);
-    this.game.load.image('circle', 'assets/images/largecircle.png');
 
     this.game.load.start();
   }
