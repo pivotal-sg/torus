@@ -8,14 +8,15 @@ import { Game } from './states/game';
 export class App extends Phaser.Game {
   constructor() {
 
-    super(200, 200, Phaser.CANVAS);
+    super(800, 600, Phaser.CANVAS);
 
     this.state.add('Boot', Boot);
     this.state.add('Loading', Loading);
-    this.state.add('Menu', Menu);
+    // this.state.add('Menu', Menu);
     this.state.add('Game', Game);
 
     this.state.start('Boot');
+    // this.state.start('Game');
   }
 }
 

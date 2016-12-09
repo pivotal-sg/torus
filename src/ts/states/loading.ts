@@ -48,7 +48,8 @@ export class Loading extends Phaser.State {
   }
 
   loadComplete() {
-    this.game.state.start('Menu');
+    // this.game.state.start('Menu');
+    this.game.state.start('Game');
   }
 
 }
