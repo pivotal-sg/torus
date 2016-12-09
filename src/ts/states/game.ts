@@ -20,8 +20,7 @@ export class Game extends Phaser.State {
     let numOfCircles = this.generateRandom(10);
 
     for (let i = 0; i < numOfCircles; i++) {
-      let circle = this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
-      circle.scale.divide(5, 5);
+      this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
     }
   }
 

@@ -1,10 +1,15 @@
 export class Loading extends Phaser.State {
 
   loadingText: Phaser.Text;
+  private hasCircleLoaded;
 
   preload() {
     this.load.image('loadingBarBg', 'assets/images/loading-bar-bg.png');
     this.load.image('loadingBar', 'assets/images/loading-bar.png');
+
+    // LOAD GAME ASSETS HERE
+    this.game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
+    this.game.load.image('circle', 'assets/images/largecircle.png');
   }
 
   create() {
@@ -35,10 +40,6 @@ export class Loading extends Phaser.State {
     this.game.load.onFileComplete.add(this.fileComplete, this);
     this.game.load.onLoadComplete.add(this.loadComplete, this);
 
-    // LOAD GAME ASSETS HERE
-    this.game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
-    this.game.load.image('circle', 'assets/images/largecircle.png');
-
     this.game.load.start();
   }
 
@@ -50,5 +51,4 @@ export class Loading extends Phaser.State {
     // this.game.state.start('Menu');
     this.game.state.start('Game');
   }
-
 }
