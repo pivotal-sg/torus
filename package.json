@@ -1,0 +1,33 @@
+{
+  "name": "phaser-typescript-blueprint",
+  "version": "1.0.0",
+  "description": "an empty project to start your phaser game with typescript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/bitsushi/phaser-typescript-blueprint"
+  },
+  "keywords": [
+    "typescript",
+    "phaser",
+    "gamedev"
+  ],
+  "author": "John Rees",
+  "license": "MIT",
+  "dependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-jsonmin": "^1.1.0",
+    "gulp-typescript": "^2.13.4",
+    "gulp-uglify": "^1.5.3",
+    "phaser": "2.4.6",
+    "systemjs": "^0.19.29"
+  },
+  "devDependencies": {
+    "gulp-connect": "^4.0.0"
+  }
+}
