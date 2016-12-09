@@ -37,8 +37,11 @@ var Player = (function (_super) {
     Player.prototype.moveDown = function () {
         this.body.velocity.y = this.speed;
     };
-    Player.prototype.stop = function () {
+    Player.prototype.stopLeftRight = function () {
         this.body.velocity.x = 0;
+        this.stopMoveAnimation();
+    };
+    Player.prototype.stopUpDown = function () {
         this.body.velocity.y = 0;
         this.stopMoveAnimation();
     };
@@ -49,6 +52,7 @@ var Player = (function (_super) {
         }
     };
     Player.prototype.update = function () {
+        var _this = this;
         var actions = [];
         if (this.cursors.left.isDown || this.wasd.left.isDown) {
             actions.push(this.moveLeft.bind(this));
@@ -62,11 +66,14 @@ var Player = (function (_super) {
         if (this.cursors.down.isDown || this.wasd.down.isDown) {
             actions.push(this.moveDown.bind(this));
         }
+        if (actions.filter(function (action) { return action == _this.moveDown || action == _this.moveUp; }).length == 0) {
+            this.stopUpDown();
+        }
+        if (actions.filter(function (action) { return action == _this.moveLeft || action == _this.moveRight; }).length == 0) {
+            this.stopLeftRight();
+        }
         if (actions.length > 0) {
             actions.map(function (action) { return action(); });
-        }
-        else {
-            this.stop();
         }
     };
     return Player;

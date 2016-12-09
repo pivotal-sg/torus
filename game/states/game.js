@@ -12,6 +12,14 @@ var Game = (function (_super) {
     }
     Game.prototype.create = function () {
         this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY);
+        var numOfCircles = this.generateRandom(10);
+        for (var i = 0; i < numOfCircles; i++) {
+            var circle = this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
+            circle.scale.divide(5, 5);
+        }
+    };
+    Game.prototype.generateRandom = function (number) {
+        return Math.ceil(Math.random() * number + 1);
     };
     Game.prototype.render = function () {
     };
