@@ -48,12 +48,18 @@ var Game = (function (_super) {
         this.player.body.x = Math.min(this.player.body.x, this.camera.x + SCREEN_WIDTH - this.player.width);
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
     };
     Game.prototype.reset = function (player) {
         player.kill();
         this.game.state.start('Menu');
         this.score = 0;
+    };
+    Game.prototype.formatTime = function (seconds) {
+        var date = new Date(null);
+        date.setSeconds(seconds);
+        console.log(date.toISOString());
+        return date.toISOString().substr(14, 5);
     };
     return Game;
 }(Phaser.State));
