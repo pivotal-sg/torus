@@ -32,20 +32,25 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.update = function () {
-        this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
+        this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.score += 1;
         this.camera.x += 3;
-        this.restrictXBounds();
+        this.killPlayerIfHitLeftEdge();
+        this.restrictRightBounds();
     };
-    Game.prototype.restrictXBounds = function () {
-        this.player.body.x = Math.max(this.player.body.x, this.camera.x);
+    Game.prototype.killPlayerIfHitLeftEdge = function () {
+        if (this.player.body.x <= this.camera.x) {
+            this.reset(this.player);
+        }
+    };
+    Game.prototype.restrictRightBounds = function () {
         this.player.body.x = Math.min(this.player.body.x, this.camera.x + SCREEN_WIDTH - this.player.width);
     };
     Game.prototype.render = function () {
         this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
     };
-    Game.prototype.collide = function (player) {
+    Game.prototype.reset = function (player) {
         player.kill();
         this.game.state.start('Menu');
         this.score = 0;
