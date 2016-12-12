@@ -45,7 +45,7 @@ export class Game extends Phaser.State {
 
   private collide(player: Player) {
     player.kill();
-    this.game.state.start('Game');
+    this.game.state.start('Menu');
     this.score = 0;
   }
 }

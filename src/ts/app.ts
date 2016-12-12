@@ -12,7 +12,7 @@ export class App extends Phaser.Game {
 
     this.state.add('Boot', Boot);
     this.state.add('Loading', Loading);
-    // this.state.add('Menu', Menu);
+    this.state.add('Menu', Menu);
     this.state.add('Game', Game);
 
     this.state.start('Boot');
