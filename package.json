@@ -4,7 +4,7 @@
   "description": "an empty project to start your phaser game with typescript",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register -r jsdom-global/register spec/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,15 @@
     "systemjs": "^0.19.29"
   },
   "devDependencies": {
-    "gulp-connect": "^4.0.0"
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "chai": "^3.5.0",
+    "gulp-connect": "^4.0.0",
+    "jsdom": "9.8.3",
+    "jsdom-global": "2.1.0",
+    "mocha": "^3.2.0",
+    "phaser": "^2.4.6",
+    "ts-node": "^1.7.2",
+    "typings": "^2.0.0"
   }
 }

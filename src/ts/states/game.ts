@@ -1,4 +1,5 @@
 import {Player} from '../prefabs/player';
+import {RandomGenerator} from '../helpers/random_generator';
 import Group = Phaser.Group;
 import Color = Phaser.Color;
 
@@ -10,22 +11,23 @@ export class Game extends Phaser.State {
     player: Player;
     obstacles: Group;
     score = 0;
+    randomGenerator = new RandomGenerator();
 
     create() {
         this.world.resize(9999, 600);
         this.game.add.tileSprite(0, 0, this.world.width, this.world.height, 'outerSpace');
 
         this.player = new Player(this.game, 400, this.world.centerY);
-        let numOfCircles = this.generateRandom(NUM_OF_OBSTACLES);
+        let numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
 
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
         this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
 
         for (let i = 0; i < numOfCircles; i++) {
-            let obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle')
+            let obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle')
             obstacle.body.collideWorldBounds = true;
-            obstacle.body.velocity.setTo(this.generateRandom(VELOCITY, true), this.generateRandom(VELOCITY, true));
+            obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true), this.randomGenerator.generateRandom(VELOCITY, true));
             obstacle.body.bounce.setTo(1, 1);
         }
     }
@@ -39,10 +41,6 @@ export class Game extends Phaser.State {
 
     render() {
         this.game.debug.text(this.score.toString(), 800 - 80, 30, "#ffffff");
-    }
-
-    private generateRandom(number: number, allowNegative = false) {
-        return Math.ceil((Math.random() - (allowNegative ? 0.5 : 0)) * number + 1);
     }
 
     private collide(player: Player) {
