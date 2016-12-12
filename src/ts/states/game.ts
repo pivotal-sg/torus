@@ -1,13 +1,15 @@
 import {Player} from '../prefabs/player';
 import Group = Phaser.Group;
+import Color = Phaser.Color;
 
-const GRAVITY = 100;
-const NUM_OF_OBSTACLES = 10;
+const VELOCITY = 100;
+const NUM_OF_OBSTACLES = 20;
 
 export class Game extends Phaser.State {
 
   player: Player;
   obstacles: Group;
+  score = 0;
 
   create() {
     this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
@@ -17,20 +19,24 @@ export class Game extends Phaser.State {
 
     this.obstacles = this.game.add.group();
     this.obstacles.enableBody = true;
+    this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
 
     for (let i = 0; i < numOfCircles; i++) {
       let obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle')
-      obstacle.body.gravity.x = this.generateRandom(GRAVITY, true);
-      obstacle.body.gravity.y = this.generateRandom(GRAVITY, true);
       obstacle.body.collideWorldBounds = true;
-      obstacle.body.bounce.x = 1;
-      obstacle.body.bounce.y = 1;
+      obstacle.body.velocity.setTo(this.generateRandom(VELOCITY, true), this.generateRandom(VELOCITY, true));
+      obstacle.body.bounce.setTo(1, 1);
     }
   }
 
   update() {
     this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
     this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
+    this.score += 1;
+  }
+
+  render() {
+    this.game.debug.text(this.score.toString(), this.world.width - 80, 30, "#ffffff");
   }
 
   private generateRandom(number: number, allowNegative = false) {
@@ -40,5 +46,6 @@ export class Game extends Phaser.State {
   private collide(player: Player) {
     player.kill();
     this.game.state.start('Game');
+    this.score = 0;
   }
 }
