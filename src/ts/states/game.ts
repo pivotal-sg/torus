@@ -22,11 +22,15 @@ export class Game extends Phaser.State {
       let obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle')
       obstacle.body.gravity.x = this.generateRandom(GRAVITY, true);
       obstacle.body.gravity.y = this.generateRandom(GRAVITY, true);
+      obstacle.body.collideWorldBounds = true;
+      obstacle.body.bounce.x = 1;
+      obstacle.body.bounce.y = 1;
     }
   }
 
   update() {
     this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
+    this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
   }
 
   private generateRandom(number: number, allowNegative = false) {
