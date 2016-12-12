@@ -13,15 +13,22 @@ var Game = (function (_super) {
     Game.prototype.create = function () {
         this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
         this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY);
-        var numOfCircles = this.generateRandom(10);
+        var numOfCircles = this.generateRandom(100);
+        this.obstacles = this.game.add.group();
+        this.obstacles.enableBody = true;
         for (var i = 0; i < numOfCircles; i++) {
-            this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
+            this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
         }
+    };
+    Game.prototype.update = function () {
+        this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
     };
     Game.prototype.generateRandom = function (number) {
         return Math.ceil(Math.random() * number + 1);
     };
-    Game.prototype.render = function () {
+    Game.prototype.collide = function (player) {
+        player.kill();
+        this.game.state.start('Game');
     };
     return Game;
 }(Phaser.State));
