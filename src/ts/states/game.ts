@@ -1,37 +1,35 @@
 import { Player } from '../prefabs/player';
+import Group = Phaser.Group;
 
 export class Game extends Phaser.State {
 
   player: Player;
+  obstacles: Group;
 
   create() {
-    // this.game.time.advancedTiming = true; // needed for FPS counter
-    // this.game.physics.startSystem(Phaser.Physics.ARCADE);
-    // this.game.physics.arcade.gravity.y = 800;
-    //
-    // let map = this.game.add.tilemap('map');
-    // map.addTilesetImage('tiles', 'tiles');
-    // let platformsLayer = map.createLayer('platforms');
-    // map.setCollision(1, true, platformsLayer);
-    // platformsLayer.resizeWorld();
-
     this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
 
     this.player = new Player(this.game, this.world.centerX, this.world.centerY);
-    // this.game.camera.follow(this.player, Phaser.Camera.FOLLOW_PLATFORMER);
-    let numOfCircles = this.generateRandom(10);
+    let numOfCircles = this.generateRandom(100);
+
+    this.obstacles = this.game.add.group();
+    this.obstacles.enableBody = true;
 
     for (let i = 0; i < numOfCircles; i++) {
-      this.game.add.image(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
+      this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle')
     }
+  }
+
+  update() {
+    this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
   }
 
   private generateRandom(number: number) {
     return Math.ceil(Math.random() * number + 1);
   }
 
-  render() {
-    // this.game.debug.text(this.game.time.fps.toString(), 10, 20, "#ffffff");
+  private collide(player : Player) {
+    player.kill();
+    this.game.state.start('Game');
   }
-
 }

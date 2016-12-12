@@ -1,7 +1,6 @@
 export class Loading extends Phaser.State {
 
   loadingText: Phaser.Text;
-  private hasCircleLoaded;
 
   preload() {
     this.load.image('loadingBarBg', 'assets/images/loading-bar-bg.png');
