@@ -5,12 +5,13 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var player_1 = require('../prefabs/player');
-var GRAVITY = 100;
+var VELOCITY = 100;
 var NUM_OF_OBSTACLES = 20;
 var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
         _super.apply(this, arguments);
+        this.score = 0;
     }
     Game.prototype.create = function () {
         this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
@@ -18,18 +19,21 @@ var Game = (function (_super) {
         var numOfCircles = this.generateRandom(NUM_OF_OBSTACLES);
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
+        this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
         for (var i = 0; i < numOfCircles; i++) {
             var obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
-            obstacle.body.gravity.x = this.generateRandom(GRAVITY, true);
-            obstacle.body.gravity.y = this.generateRandom(GRAVITY, true);
             obstacle.body.collideWorldBounds = true;
-            obstacle.body.bounce.x = 1;
-            obstacle.body.bounce.y = 1;
+            obstacle.body.velocity.setTo(this.generateRandom(VELOCITY, true), this.generateRandom(VELOCITY, true));
+            obstacle.body.bounce.setTo(1, 1);
         }
     };
     Game.prototype.update = function () {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
+        this.score += 1;
+    };
+    Game.prototype.render = function () {
+        this.game.debug.text(this.score.toString(), this.world.width - 80, 30, "#ffffff");
     };
     Game.prototype.generateRandom = function (number, allowNegative) {
         if (allowNegative === void 0) { allowNegative = false; }
@@ -38,6 +42,7 @@ var Game = (function (_super) {
     Game.prototype.collide = function (player) {
         player.kill();
         this.game.state.start('Game');
+        this.score = 0;
     };
     return Game;
 }(Phaser.State));
