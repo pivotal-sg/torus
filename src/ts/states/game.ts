@@ -35,15 +35,20 @@ export class Game extends Phaser.State {
     }
 
     update() {
-        this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
+        this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.score += 1;
         this.camera.x += 3;
-        this.restrictXBounds();
+        this.killPlayerIfHitLeftEdge();
+        this.restrictRightBounds();
     }
 
-    private restrictXBounds() {
-        this.player.body.x = Math.max(this.player.body.x, this.camera.x);
+    private killPlayerIfHitLeftEdge() {
+        if(this.player.body.x <= this.camera.x) {
+            this.reset(this.player);
+        }
+    }
+    private restrictRightBounds() {
         this.player.body.x = Math.min(this.player.body.x, this.camera.x + SCREEN_WIDTH - this.player.width);
     }
 
@@ -51,7 +56,7 @@ export class Game extends Phaser.State {
         this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
-    private collide(player: Player) {
+    private reset(player: Player) {
         player.kill();
         this.game.state.start('Menu');
         this.score = 0;
