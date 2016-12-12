@@ -12,23 +12,29 @@ var Menu = (function (_super) {
     Menu.prototype.create = function () {
         var titleFontStyle = {
             font: '180px VT323',
-            fill: '#83769C'
+            fill: '#8C5C9E'
+        };
+        var subTitleFontStyle = {
+            font: '30px VT323',
+            fill: '#FFB83B'
         };
         var titleText = this.add.text(this.world.centerX, 100, 'TORUS', titleFontStyle);
         titleText.anchor.setTo(0.5, 0.5);
-        var buttonFontStyle = {
-            font: '30px VT323',
-            fill: '#00E232'
-        };
         var spaceman = this.game.add.image(this.world.centerX, this.world.centerY, 'spaceman');
         spaceman.anchor.setTo(0.5, 0.5);
-        var gameButton = this.add.text(this.world.centerX, this.world.height - 150, 'PLAY!', buttonFontStyle);
-        gameButton.anchor.setTo(0.5, 0.5);
-        gameButton.inputEnabled = true;
-        gameButton.events.onInputDown.addOnce(this.buttonClicked, this);
+        var startButton = this.add.text(this.world.centerX, this.world.height - 90, 'PRESS HERE OR SPACE TO START', subTitleFontStyle);
+        startButton.anchor.setTo(0.5, 0.5);
+        startButton.inputEnabled = true;
+        startButton.events.onInputDown.addOnce(this.buttonClicked, this);
+        this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     };
     Menu.prototype.buttonClicked = function () {
         this.game.state.start('Game');
+    };
+    Menu.prototype.update = function () {
+        if (this.spaceKey.isDown) {
+            this.game.state.start('Game');
+        }
     };
     return Menu;
 }(Phaser.State));
