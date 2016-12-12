@@ -8,6 +8,7 @@ var player_1 = require('../prefabs/player');
 var random_generator_1 = require('../helpers/random_generator');
 var VELOCITY = 100;
 var NUM_OF_OBSTACLES = 200;
+var SCREEN_WIDTH = 800;
 var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
@@ -18,7 +19,7 @@ var Game = (function (_super) {
     Game.prototype.create = function () {
         this.world.resize(9999, 600);
         this.game.add.tileSprite(0, 0, this.world.width, this.world.height, 'outerSpace');
-        this.player = new player_1.Player(this.game, 400, this.world.centerY);
+        this.player = new player_1.Player(this.game, SCREEN_WIDTH / 2, this.world.centerY);
         var numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
@@ -35,9 +36,14 @@ var Game = (function (_super) {
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.score += 1;
         this.camera.x += 3;
+        this.restrictXBounds();
+    };
+    Game.prototype.restrictXBounds = function () {
+        this.player.body.x = Math.max(this.player.body.x, this.camera.x);
+        this.player.body.x = Math.min(this.player.body.x, this.camera.x + SCREEN_WIDTH - this.player.width);
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.score.toString(), 800 - 80, 30, "#ffffff");
+        this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
     };
     Game.prototype.collide = function (player) {
         player.kill();
