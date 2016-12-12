@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var player_1 = require('../prefabs/player');
 var GRAVITY = 100;
-var NUM_OF_OBSTACLES = 10;
+var NUM_OF_OBSTACLES = 20;
 var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
@@ -22,10 +22,14 @@ var Game = (function (_super) {
             var obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
             obstacle.body.gravity.x = this.generateRandom(GRAVITY, true);
             obstacle.body.gravity.y = this.generateRandom(GRAVITY, true);
+            obstacle.body.collideWorldBounds = true;
+            obstacle.body.bounce.x = 1;
+            obstacle.body.bounce.y = 1;
         }
     };
     Game.prototype.update = function () {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
+        this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
     };
     Game.prototype.generateRandom = function (number, allowNegative) {
         if (allowNegative === void 0) { allowNegative = false; }
