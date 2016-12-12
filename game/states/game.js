@@ -6,7 +6,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var player_1 = require('../prefabs/player');
 var VELOCITY = 100;
-var NUM_OF_OBSTACLES = 200;
+var NUM_OF_OBSTACLES = 20;
 var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
@@ -14,9 +14,8 @@ var Game = (function (_super) {
         this.score = 0;
     }
     Game.prototype.create = function () {
-        this.world.resize(9999, 600);
-        this.game.add.tileSprite(0, 0, this.world.width, this.world.height, 'outerSpace');
-        this.player = new player_1.Player(this.game, 400, this.world.centerY);
+        this.game.add.tileSprite(0, 0, this.game.width, this.game.height, 'outerSpace');
+        this.player = new player_1.Player(this.game, this.world.centerX, this.world.centerY);
         var numOfCircles = this.generateRandom(NUM_OF_OBSTACLES);
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
@@ -24,7 +23,7 @@ var Game = (function (_super) {
         for (var i = 0; i < numOfCircles; i++) {
             var obstacle = this.obstacles.create(this.generateRandom(this.world.width), this.generateRandom(this.world.height), 'circle');
             obstacle.body.collideWorldBounds = true;
-            obstacle.body.velocity.setTo(this.generateRandom(VELOCITY, true), this.generateRandom(VELOCITY, true));
+            obstacle.body.velocity.setTo(this.generateRandom(VELOCITY), this.generateRandom(VELOCITY));
             obstacle.body.bounce.setTo(1, 1);
         }
     };
@@ -32,10 +31,9 @@ var Game = (function (_super) {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.collide, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.score += 1;
-        this.camera.x += 3;
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.score.toString(), 800 - 80, 30, "#ffffff");
+        this.game.debug.text(this.score.toString(), this.world.width - 80, 30, "#ffffff");
     };
     Game.prototype.generateRandom = function (number, allowNegative) {
         if (allowNegative === void 0) { allowNegative = false; }
