@@ -5,6 +5,7 @@ import Color = Phaser.Color;
 
 const VELOCITY = 100;
 const NUM_OF_OBSTACLES = 200;
+const SCREEN_WIDTH = 800;
 
 export class Game extends Phaser.State {
 
@@ -17,7 +18,8 @@ export class Game extends Phaser.State {
         this.world.resize(9999, 600);
         this.game.add.tileSprite(0, 0, this.world.width, this.world.height, 'outerSpace');
 
-        this.player = new Player(this.game, 400, this.world.centerY);
+        this.player = new Player(this.game, SCREEN_WIDTH / 2, this.world.centerY);
+
         let numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
 
         this.obstacles = this.game.add.group();
@@ -37,10 +39,16 @@ export class Game extends Phaser.State {
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.score += 1;
         this.camera.x += 3;
+        this.restrictXBounds();
+    }
+
+    private restrictXBounds() {
+        this.player.body.x = Math.max(this.player.body.x, this.camera.x);
+        this.player.body.x = Math.min(this.player.body.x, this.camera.x + SCREEN_WIDTH - this.player.width);
     }
 
     render() {
-        this.game.debug.text(this.score.toString(), 800 - 80, 30, "#ffffff");
+        this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
     private collide(player: Player) {
