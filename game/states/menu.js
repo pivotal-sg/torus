@@ -11,16 +11,18 @@ var Menu = (function (_super) {
     }
     Menu.prototype.create = function () {
         var titleFontStyle = {
-            font: '18px VT323',
+            font: '180px VT323',
             fill: '#83769C'
         };
-        var titleText = this.add.text(this.world.centerX, 50, 'MAIN MENU', titleFontStyle);
+        var titleText = this.add.text(this.world.centerX, 100, 'TORUS', titleFontStyle);
         titleText.anchor.setTo(0.5, 0.5);
         var buttonFontStyle = {
             font: '30px VT323',
             fill: '#00E232'
         };
-        var gameButton = this.add.text(this.world.centerX, 150, 'PLAY!', buttonFontStyle);
+        var spaceman = this.game.add.image(this.world.centerX, this.world.centerY, 'spaceman');
+        spaceman.anchor.setTo(0.5, 0.5);
+        var gameButton = this.add.text(this.world.centerX, this.world.height - 150, 'PLAY!', buttonFontStyle);
         gameButton.anchor.setTo(0.5, 0.5);
         gameButton.inputEnabled = true;
         gameButton.events.onInputDown.addOnce(this.buttonClicked, this);

@@ -41,7 +41,7 @@ var Game = (function (_super) {
     };
     Game.prototype.collide = function (player) {
         player.kill();
-        this.game.state.start('Game');
+        this.game.state.start('Menu');
         this.score = 0;
     };
     return Game;

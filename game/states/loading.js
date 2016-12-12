@@ -35,7 +35,7 @@ var Loading = (function (_super) {
         this.loadingText.setText('Loading... ' + progress + '%');
     };
     Loading.prototype.loadComplete = function () {
-        this.game.state.start('Game');
+        this.game.state.start('Menu');
     };
     return Loading;
 }(Phaser.State));
