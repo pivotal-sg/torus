@@ -17,7 +17,8 @@ let gulp = require('gulp'),
       tsConfig: 'src/ts/tsconfig.json',
       ts: 'src/**/*.ts',
       html: 'src/**/*.html',
-      images: 'src/assets/images/**/*.png',
+      images: ['src/assets/images/**/*.png',
+          'src/assets/images/**/*.jpg'],
       tilemaps: 'src/assets/tilemaps/**/*.json'
     };
 

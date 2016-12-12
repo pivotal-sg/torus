@@ -13,13 +13,13 @@ export class Menu extends Phaser.State {
       fill: '#FFB83B'
     };
 
-    let titleText = this.add.text(this.world.centerX, 100, 'TORUS', titleFontStyle);
+    let titleText = this.add.text(400, 100, 'TORUS', titleFontStyle);
     titleText.anchor.setTo(0.5, 0.5);
 
-    let spaceman = this.game.add.image(this.world.centerX, this.world.centerY, 'spaceman');
+    let spaceman = this.game.add.image(400, this.world.centerY, 'spaceman');
     spaceman.anchor.setTo(0.5, 0.5);
 
-    let startButton = this.add.text(this.world.centerX, this.world.height - 90, 'PRESS HERE OR SPACE TO START', subTitleFontStyle);
+    let startButton = this.add.text(400, this.world.height - 90, 'PRESS HERE OR SPACE TO START', subTitleFontStyle);
     startButton.anchor.setTo(0.5, 0.5);
     startButton.inputEnabled = true;
     startButton.events.onInputDown.addOnce(this.buttonClicked, this);
