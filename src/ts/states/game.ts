@@ -53,13 +53,20 @@ export class Game extends Phaser.State {
     }
 
     render() {
-        this.game.debug.text(this.score.toString(), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
     private reset(player: Player) {
         player.kill();
         this.game.state.start('Menu');
         this.score = 0;
+    }
+
+    private formatTime(seconds: number) {
+        var date = new Date(null);
+        date.setSeconds(seconds); // specify value for SECONDS here
+        console.log(date.toISOString());
+        return date.toISOString().substr(14, 5);
     }
 }
 
