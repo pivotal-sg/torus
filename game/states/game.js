@@ -31,6 +31,8 @@ var Game = (function (_super) {
         for (var i = 0; i < numOfCircles; i++) {
             var obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle');
             obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED, this.randomGenerator.generateRandom(VELOCITY, true));
+            obstacle.checkWorldBounds = true;
+            obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
         }
         this.resetTime();
     };
@@ -39,6 +41,10 @@ var Game = (function (_super) {
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.outerSpace.tilePosition.x -= 3;
         this.killPlayerIfHitLeftEdge();
+    };
+    Game.prototype.obstacleOut = function (obstacle) {
+        obstacle.reset(SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH / 10), this.randomGenerator.generateRandom(SCREEN_HEIGHT));
+        obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED, this.randomGenerator.generateRandom(VELOCITY, true));
     };
     Game.prototype.killPlayerIfHitLeftEdge = function () {
         if (this.player.body.x <= this.camera.x) {
