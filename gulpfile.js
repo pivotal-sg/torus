@@ -69,6 +69,15 @@ gulp.task('tsc', () => {
     .pipe(connect.reload());
 });
 
+gulp.task('verify', () => {
+  let tsProject = tsc.createProject(paths.tsConfig);
+  let tsResult = tsProject.src().pipe(tsc(tsProject));
+  return tsResult.js
+    .on('error', function (error) {
+      process.exit(1);
+    })
+});
+
 gulp.task('watch', () => {
   let watchTs = gulp.watch(paths.ts, ['tsc']),
     watchHtml   = gulp.watch(paths.html, ['html']),

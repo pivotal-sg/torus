@@ -33,6 +33,10 @@ export class Player extends Phaser.Sprite {
     this.body.velocity.x = this.speed + INITIAL_X_SPEED;
   }
 
+  moveUp() {
+
+  }
+
   moveUpwards() {
     this.body.velocity.y = -this.speed;
   }

@@ -6,4 +6,5 @@ install:
   - npm install
   - npm install -g typescript@2.1.4
 script:
+  - gulp verify
   - npm test
