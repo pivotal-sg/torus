@@ -8,6 +8,8 @@ install:
   - npm install
   - npm install -g typescript@2.1.4
 script:
-  - npm run gulp release
+  - git status
+  - gulp --version
+  - gulp release
 after_failure:
   - cat /home/travis/build/pivotal-sg/torus/npm-debug.log
