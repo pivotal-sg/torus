@@ -3,6 +3,7 @@ import {RandomGenerator} from '../helpers/random_generator';
 import Group = Phaser.Group;
 import Color = Phaser.Color;
 import TileSprite = Phaser.TileSprite;
+import {Formatter} from "../helpers/formatter";
 
 const VELOCITY = 100;
 const INITIAL_OBSTACLE_SPEED = 100;
@@ -17,6 +18,7 @@ export class Game extends Phaser.State {
     outerSpace: TileSprite;
     score = 0;
     randomGenerator = new RandomGenerator();
+    formatter = new Formatter();
 
     create() {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -54,19 +56,14 @@ export class Game extends Phaser.State {
     }
 
     render() {
-        this.game.debug.text(this.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatter.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
     private reset(player: Player) {
         player.kill();
         this.game.state.start('Menu');
+        this.game.time.reset();
         this.score = 0;
-    }
-
-    private formatTime(seconds: number) {
-        var date = new Date(null);
-        date.setSeconds(seconds); // specify value for SECONDS here
-        return date.toISOString().substr(14, 5);
     }
 }
 
