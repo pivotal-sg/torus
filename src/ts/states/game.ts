@@ -16,7 +16,6 @@ export class Game extends Phaser.State {
     player: Player;
     obstacles: Group;
     outerSpace: TileSprite;
-    score = 0;
     randomGenerator = new RandomGenerator();
     formatter = new Formatter();
     totalPausedTime = 0;
@@ -39,12 +38,13 @@ export class Game extends Phaser.State {
                 this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
                 this.randomGenerator.generateRandom(VELOCITY, true));
         }
+
+        this.resetTime();
     }
 
     update() {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
-        this.score += 1;
         this.outerSpace.tilePosition.x -= 3;
 
         this.killPlayerIfHitLeftEdge();
@@ -63,9 +63,12 @@ export class Game extends Phaser.State {
     private reset(player: Player) {
         player.kill();
         this.game.state.start('Menu');
+    }
+
+    private resetTime() {
         this.game.time.reset();
+        this.game.time.pauseDuration = 0;
         this.totalPausedTime = 0;
-        this.score = 0;
     }
 
     private getGameTime() {
