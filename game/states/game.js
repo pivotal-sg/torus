@@ -9,7 +9,8 @@ var random_generator_1 = require('../helpers/random_generator');
 var formatter_1 = require("../helpers/formatter");
 var VELOCITY = 100;
 var INITIAL_OBSTACLE_SPEED = 100;
-var NUM_OF_OBSTACLES = 10;
+var NUM_OF_OBSTACLES_INITIAL = 3;
+var NUM_OF_OBSTACLES_ADD = 2;
 var SCREEN_WIDTH = 800;
 var SCREEN_HEIGHT = 600;
 var Game = (function (_super) {
@@ -24,23 +25,27 @@ var Game = (function (_super) {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
         this.outerSpace = this.game.add.tileSprite(0, 0, this.world.width, this.world.height, 'outerSpace');
         this.player = new player_1.Player(this.game, SCREEN_WIDTH / 2, this.world.centerY);
-        var numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
         this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
-        for (var i = 0; i < numOfCircles; i++) {
-            var obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle');
-            obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED, this.randomGenerator.generateRandom(VELOCITY, true));
-            obstacle.checkWorldBounds = true;
-            obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
-        }
+        this.addObstacles(NUM_OF_OBSTACLES_INITIAL);
         this.resetTime();
+        this.game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, this.addObstacles, this, NUM_OF_OBSTACLES_ADD);
+        this.game.time.events.start();
     };
     Game.prototype.update = function () {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
         this.outerSpace.tilePosition.x -= 3;
         this.killPlayerIfHitLeftEdge();
+    };
+    Game.prototype.addObstacles = function (num) {
+        for (var i = 0; i < num; i++) {
+            var obstacle = this.obstacles.create(SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH / 10), this.randomGenerator.generateRandom(SCREEN_HEIGHT), 'circle');
+            obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED, this.randomGenerator.generateRandom(VELOCITY, true));
+            obstacle.checkWorldBounds = true;
+            obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
+        }
     };
     Game.prototype.obstacleOut = function (obstacle) {
         obstacle.reset(SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH / 10), this.randomGenerator.generateRandom(SCREEN_HEIGHT));
