@@ -10,7 +10,7 @@
 
 ## Deployment
 
-You can deploy to Github pages using the following command, which will push your `dist` folder onto the gh-pages branch of your repo.
+You can deploy to Github pages using the following command, which will push your `dist` folder onto the `gh-pages` branch of your repo.
 
 `./deploy.sh`
 
