@@ -1,7 +1,7 @@
 node_modules
 dist
 /src/**/*.js
-.idea/	
+.idea/
 
 # Created by https://www.gitignore.io/api/intellij
 
