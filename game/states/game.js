@@ -16,7 +16,6 @@ var Game = (function (_super) {
     __extends(Game, _super);
     function Game() {
         _super.apply(this, arguments);
-        this.score = 0;
         this.randomGenerator = new random_generator_1.RandomGenerator();
         this.formatter = new formatter_1.Formatter();
         this.totalPausedTime = 0;
@@ -33,11 +32,11 @@ var Game = (function (_super) {
             var obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle');
             obstacle.body.velocity.setTo(this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED, this.randomGenerator.generateRandom(VELOCITY, true));
         }
+        this.resetTime();
     };
     Game.prototype.update = function () {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
         this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
-        this.score += 1;
         this.outerSpace.tilePosition.x -= 3;
         this.killPlayerIfHitLeftEdge();
     };
@@ -52,9 +51,11 @@ var Game = (function (_super) {
     Game.prototype.reset = function (player) {
         player.kill();
         this.game.state.start('Menu');
+    };
+    Game.prototype.resetTime = function () {
         this.game.time.reset();
+        this.game.time.pauseDuration = 0;
         this.totalPausedTime = 0;
-        this.score = 0;
     };
     Game.prototype.getGameTime = function () {
         this.totalPausedTime += this.game.time.pauseDuration;
