@@ -7,7 +7,8 @@ import {Formatter} from "../helpers/formatter";
 
 const VELOCITY = 100;
 const INITIAL_OBSTACLE_SPEED = 100;
-const NUM_OF_OBSTACLES = 10;
+const NUM_OF_OBSTACLES_INITIAL = 3;
+const NUM_OF_OBSTACLES_ADD = 2;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
 
@@ -26,16 +27,30 @@ export class Game extends Phaser.State {
 
         this.player = new Player(this.game, SCREEN_WIDTH / 2, this.world.centerY);
 
-        let numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
-
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
         this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
 
-        for (let i = 0; i < numOfCircles; i++) {
+        this.addObstacles(NUM_OF_OBSTACLES_INITIAL);
+
+        this.resetTime();
+        this.game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, this.addObstacles, this, NUM_OF_OBSTACLES_ADD);
+        this.game.time.events.start();
+    }
+
+    update() {
+        this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
+        this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
+        this.outerSpace.tilePosition.x -= 3;
+
+        this.killPlayerIfHitLeftEdge();
+    }
+
+    private addObstacles(num) {
+        for (let i = 0; i < num; i++) {
             let obstacle = this.obstacles.create(
-                this.randomGenerator.generateRandom(this.world.width),
-                this.randomGenerator.generateRandom(this.world.height),
+                SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH/10),
+                this.randomGenerator.generateRandom(SCREEN_HEIGHT),
                 'circle'
             );
             obstacle.body.velocity.setTo(
@@ -46,16 +61,6 @@ export class Game extends Phaser.State {
             obstacle.checkWorldBounds = true;
             obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
         }
-
-        this.resetTime();
-    }
-
-    update() {
-        this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
-        this.game.physics.arcade.collide(this.obstacles, this.obstacles, null, null, this);
-        this.outerSpace.tilePosition.x -= 3;
-
-        this.killPlayerIfHitLeftEdge();
     }
 
     private obstacleOut(obstacle) {
