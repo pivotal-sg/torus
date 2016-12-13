@@ -6,9 +6,10 @@ install:
   - npm cache clean
   - npm prune
   - npm install
+  - npm uninstall gulp
+  - npm install "gulpjs/gulp.git#4.0" --save-dev
   - npm install -g typescript@2.1.4
 script:
-  - git checkout master
   - git status
   - gulp --version
   - npm run gulp release
