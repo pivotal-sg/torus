@@ -53,6 +53,7 @@ var Game = (function (_super) {
         player.kill();
         this.game.state.start('Menu');
         this.game.time.reset();
+        this.totalPausedTime = 0;
         this.score = 0;
     };
     Game.prototype.getGameTime = function () {
