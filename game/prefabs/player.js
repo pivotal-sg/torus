@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var INITIAL_X_SPEED = -100;
 var Player = (function (_super) {
     __extends(Player, _super);
     function Player(game, x, y) {
@@ -23,10 +24,10 @@ var Player = (function (_super) {
         };
     }
     Player.prototype.moveLeft = function () {
-        this.body.velocity.x = -this.speed;
+        this.body.velocity.x = -this.speed + INITIAL_X_SPEED;
     };
     Player.prototype.moveRight = function () {
-        this.body.velocity.x = this.speed;
+        this.body.velocity.x = this.speed + INITIAL_X_SPEED;
     };
     Player.prototype.moveUpwards = function () {
         this.body.velocity.y = -this.speed;
@@ -35,7 +36,7 @@ var Player = (function (_super) {
         this.body.velocity.y = this.speed;
     };
     Player.prototype.stopLeftRight = function () {
-        this.body.velocity.x = 0;
+        this.body.velocity.x = INITIAL_X_SPEED;
     };
     Player.prototype.stopUpDown = function () {
         this.body.velocity.y = 0;
