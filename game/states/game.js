@@ -19,6 +19,7 @@ var Game = (function (_super) {
         this.score = 0;
         this.randomGenerator = new random_generator_1.RandomGenerator();
         this.formatter = new formatter_1.Formatter();
+        this.totalPausedTime = 0;
     }
     Game.prototype.create = function () {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -46,13 +47,18 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.formatter.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatter.formatTime(this.getGameTime()), SCREEN_WIDTH - 80, 30, "#ffffff");
     };
     Game.prototype.reset = function (player) {
         player.kill();
         this.game.state.start('Menu');
         this.game.time.reset();
         this.score = 0;
+    };
+    Game.prototype.getGameTime = function () {
+        this.totalPausedTime += this.game.time.pauseDuration;
+        this.game.time.pauseDuration = 0;
+        return this.game.time.totalElapsedSeconds() - Math.floor(this.totalPausedTime / 1000);
     };
     return Game;
 }(Phaser.State));
