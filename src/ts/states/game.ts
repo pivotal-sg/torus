@@ -64,6 +64,7 @@ export class Game extends Phaser.State {
         player.kill();
         this.game.state.start('Menu');
         this.game.time.reset();
+        this.totalPausedTime = 0;
         this.score = 0;
     }
 
