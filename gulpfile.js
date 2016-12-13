@@ -24,7 +24,7 @@ let gulp = require('gulp'),
 
 gulp.task('clean', () => del('dist/'));
 
-gulp.task('connect', function() {
+gulp.task('connect', function () {
   connect.server({
     root: 'dist',
     livereload: true
@@ -63,49 +63,48 @@ gulp.task('vendor', () => {
 
 gulp.task('tsc', () => {
   let tsProject = tsc.createProject(paths.tsConfig);
-let tsResult = tsProject.src().pipe(tsc(tsProject));
-return tsResult.js
-  .pipe(gulp.dest('dist/game/'))
-  .pipe(connect.reload());
+  let tsResult = tsProject.src().pipe(tsc(tsProject));
+  return tsResult.js
+    .pipe(gulp.dest('dist/game/'))
+    .pipe(connect.reload());
 });
 
 gulp.task('verify', () => {
   let tsProject = tsc.createProject(paths.tsConfig);
-let tsResult = tsProject.src().pipe(tsc(tsProject));
-return tsResult.js
-  .on('error', function (error) {
-    process.exit(1);
-  })
+  let tsResult = tsProject.src().pipe(tsc(tsProject));
+  return tsResult.js
+    .on('error', function (error) {
+      process.exit(1);
+    })
 });
 
 gulp.task('test', (cb) => {
   return shell.exec('npm test', (err, stdout, stderr) => {
     console.log(stdout);
-cb(err);
-})
+    cb(err);
+  })
 });
 
 gulp.task('deploy', (cb) => {
   return shell.execFile('./deploy.sh', (err, stdout, stderr) => {
     console.log(stdout);
-cb(err);
-})
+    cb(err);
+  })
 });
 
 gulp.task('watch', () => {
-  let watchTs = gulp.watch(paths.ts, ['tsc']),
-  watchHtml   = gulp.watch(paths.html, ['html']),
-  watchTilemaps   = gulp.watch(paths.tilemaps, ['tilemaps']),
-  watchImages = gulp.watch(paths.images, ['images']),
-  onChanged = (event) => console.info(event.path + ' was ' + event.type + '. Running tasks...');
+  let watchTs = gulp.watch(paths.ts, gulp.series('tsc')),
+    watchHtml = gulp.watch(paths.html, gulp.series('html')),
+    watchTilemaps = gulp.watch(paths.tilemaps, gulp.series('tilemaps')),
+    watchImages = gulp.watch(paths.images, gulp.series('images')),
+    onChanged = (event) => console.info(event.path + ' was ' + event.type + '. Running tasks...');
 
-watchTs.on('change', onChanged);
-watchHtml.on('change', onChanged);
-watchTilemaps.on('change', onChanged);
-watchImages.on('change', onChanged);
+  watchTs.on('change', onChanged);
+  watchHtml.on('change', onChanged);
+  watchTilemaps.on('change', onChanged);
+  watchImages.on('change', onChanged);
 });
 
-
-gulp.task('build',   gulp.parallel('images', 'html', 'tilemaps', 'tsc', 'vendor'));
+gulp.task('build', gulp.parallel('images', 'html', 'tilemaps', 'tsc', 'vendor'));
 gulp.task('default', gulp.parallel('build', 'connect', 'watch'));
 gulp.task('release', gulp.series('verify', 'test', 'build', 'deploy'));
