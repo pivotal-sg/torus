@@ -19,6 +19,7 @@ export class Game extends Phaser.State {
     score = 0;
     randomGenerator = new RandomGenerator();
     formatter = new Formatter();
+    totalPausedTime = 0;
 
     create() {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -50,13 +51,13 @@ export class Game extends Phaser.State {
     }
 
     private killPlayerIfHitLeftEdge() {
-        if(this.player.body.x <= this.camera.x) {
+        if (this.player.body.x <= this.camera.x) {
             this.reset(this.player);
         }
     }
 
     render() {
-        this.game.debug.text(this.formatter.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatter.formatTime(this.getGameTime()), SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
     private reset(player: Player) {
@@ -64,6 +65,13 @@ export class Game extends Phaser.State {
         this.game.state.start('Menu');
         this.game.time.reset();
         this.score = 0;
+    }
+
+    private getGameTime() {
+        this.totalPausedTime += this.game.time.pauseDuration;
+        this.game.time.pauseDuration = 0;
+
+        return this.game.time.totalElapsedSeconds() - Math.floor(this.totalPausedTime / 1000);
     }
 }
 
