@@ -1,3 +1,5 @@
+const INITIAL_X_SPEED = -100;
+
 export class Player extends Phaser.Sprite {
 
   cursors;
@@ -24,11 +26,11 @@ export class Player extends Phaser.Sprite {
   }
 
   moveLeft() {
-    this.body.velocity.x = -this.speed;
+    this.body.velocity.x = -this.speed + INITIAL_X_SPEED;
   }
 
   moveRight() {
-    this.body.velocity.x = this.speed;
+    this.body.velocity.x = this.speed + INITIAL_X_SPEED;
   }
 
   moveUpwards() {
@@ -40,7 +42,7 @@ export class Player extends Phaser.Sprite {
   }
 
   stopLeftRight() {
-    this.body.velocity.x = 0;
+    this.body.velocity.x = INITIAL_X_SPEED;
   }
 
   stopUpDown() {
