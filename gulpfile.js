@@ -88,6 +88,7 @@ gulp.task('test', (cb) => {
 gulp.task('deploy', (cb) => {
   return shell.execFile('./deploy.sh', (err, stdout, stderr) => {
     console.log(stdout);
+    console.log(stderr);
     cb(err);
   })
 });
