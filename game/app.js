@@ -8,7 +8,6 @@ var boot_1 = require('./states/boot');
 var loading_1 = require('./states/loading');
 var menu_1 = require('./states/menu');
 var game_1 = require('./states/game');
-var score_1 = require("./states/score");
 var App = (function (_super) {
     __extends(App, _super);
     function App() {
@@ -17,7 +16,6 @@ var App = (function (_super) {
         this.state.add('Loading', loading_1.Loading);
         this.state.add('Menu', menu_1.Menu);
         this.state.add('Game', game_1.Game);
-        this.state.add('Score', score_1.Score);
         this.state.start('Boot');
     }
     return App;
