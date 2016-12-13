@@ -7,7 +7,8 @@ import {Formatter} from "../helpers/formatter";
 
 const VELOCITY = 100;
 const INITIAL_OBSTACLE_SPEED = 100;
-const NUM_OF_OBSTACLES = 10;
+const NUM_OF_OBSTACLES_INITIAL = 3;
+const NUM_OF_OBSTACLES_ADD = 2;
 const SCREEN_WIDTH = 800;
 const SCREEN_HEIGHT = 600;
 
@@ -26,20 +27,15 @@ export class Game extends Phaser.State {
 
         this.player = new Player(this.game, SCREEN_WIDTH / 2, this.world.centerY);
 
-        let numOfCircles = this.randomGenerator.generateRandom(NUM_OF_OBSTACLES);
-
         this.obstacles = this.game.add.group();
         this.obstacles.enableBody = true;
         this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
 
-        for (let i = 0; i < numOfCircles; i++) {
-            let obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle')
-            obstacle.body.velocity.setTo(
-                this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
-                this.randomGenerator.generateRandom(VELOCITY, true));
-        }
+        this.addObstacles(NUM_OF_OBSTACLES_INITIAL);
 
         this.resetTime();
+        this.game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, this.addObstacles, this, NUM_OF_OBSTACLES_ADD);
+        this.game.time.events.start();
     }
 
     update() {
@@ -48,6 +44,35 @@ export class Game extends Phaser.State {
         this.outerSpace.tilePosition.x -= 3;
 
         this.killPlayerIfHitLeftEdge();
+    }
+
+    private addObstacles(num) {
+        for (let i = 0; i < num; i++) {
+            let obstacle = this.obstacles.create(
+                SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH/10),
+                this.randomGenerator.generateRandom(SCREEN_HEIGHT),
+                'circle'
+            );
+            obstacle.body.velocity.setTo(
+                this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
+                this.randomGenerator.generateRandom(VELOCITY, true)
+            );
+
+            obstacle.checkWorldBounds = true;
+            obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
+        }
+    }
+
+    private obstacleOut(obstacle) {
+        obstacle.reset(
+            SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH/10),
+            this.randomGenerator.generateRandom(SCREEN_HEIGHT)
+        );
+
+        obstacle.body.velocity.setTo(
+            this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
+            this.randomGenerator.generateRandom(VELOCITY, true)
+        );
     }
 
     private killPlayerIfHitLeftEdge() {
