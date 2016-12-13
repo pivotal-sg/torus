@@ -6,7 +6,6 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var player_1 = require('../prefabs/player');
 var random_generator_1 = require('../helpers/random_generator');
-var formatter_1 = require("../helpers/formatter");
 var VELOCITY = 100;
 var INITIAL_OBSTACLE_SPEED = 100;
 var NUM_OF_OBSTACLES = 10;
@@ -18,7 +17,6 @@ var Game = (function (_super) {
         _super.apply(this, arguments);
         this.score = 0;
         this.randomGenerator = new random_generator_1.RandomGenerator();
-        this.formatter = new formatter_1.Formatter();
     }
     Game.prototype.create = function () {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -46,13 +44,17 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.formatter.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.game.debug.text(this.formatTime(this.game.time.totalElapsedSeconds()), SCREEN_WIDTH - 80, 30, "#ffffff");
     };
     Game.prototype.reset = function (player) {
         player.kill();
         this.game.state.start('Menu');
-        this.game.time.reset();
         this.score = 0;
+    };
+    Game.prototype.formatTime = function (seconds) {
+        var date = new Date(null);
+        date.setSeconds(seconds);
+        return date.toISOString().substr(14, 5);
     };
     return Game;
 }(Phaser.State));

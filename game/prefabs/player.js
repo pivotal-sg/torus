@@ -29,6 +29,8 @@ var Player = (function (_super) {
     Player.prototype.moveRight = function () {
         this.body.velocity.x = this.speed + INITIAL_X_SPEED;
     };
+    Player.prototype.moveUp = function () {
+    };
     Player.prototype.moveUpwards = function () {
         this.body.velocity.y = -this.speed;
     };
