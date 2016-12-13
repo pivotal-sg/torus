@@ -33,10 +33,18 @@ export class Game extends Phaser.State {
         this.game.physics.enable(this.obstacles, Phaser.Physics.ARCADE);
 
         for (let i = 0; i < numOfCircles; i++) {
-            let obstacle = this.obstacles.create(this.randomGenerator.generateRandom(this.world.width), this.randomGenerator.generateRandom(this.world.height), 'circle')
+            let obstacle = this.obstacles.create(
+                this.randomGenerator.generateRandom(this.world.width),
+                this.randomGenerator.generateRandom(this.world.height),
+                'circle'
+            );
             obstacle.body.velocity.setTo(
                 this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
-                this.randomGenerator.generateRandom(VELOCITY, true));
+                this.randomGenerator.generateRandom(VELOCITY, true)
+            );
+
+            obstacle.checkWorldBounds = true;
+            obstacle.events.onOutOfBounds.add(this.obstacleOut, this);
         }
 
         this.resetTime();
@@ -48,6 +56,18 @@ export class Game extends Phaser.State {
         this.outerSpace.tilePosition.x -= 3;
 
         this.killPlayerIfHitLeftEdge();
+    }
+
+    private obstacleOut(obstacle) {
+        obstacle.reset(
+            SCREEN_WIDTH + this.randomGenerator.generateRandom(SCREEN_WIDTH/10),
+            this.randomGenerator.generateRandom(SCREEN_HEIGHT)
+        );
+
+        obstacle.body.velocity.setTo(
+            this.randomGenerator.generateRandom(VELOCITY, true) - INITIAL_OBSTACLE_SPEED,
+            this.randomGenerator.generateRandom(VELOCITY, true)
+        );
     }
 
     private killPlayerIfHitLeftEdge() {
