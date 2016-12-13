@@ -1,5 +1,7 @@
 # TORUS
 
+[![Build Status](https://travis-ci.org/pivotal-sg/torus.svg?branch=master)](https://travis-ci.org/pivotal-sg/torus)
+
 # Usage
 
 1. Run `npm install && gulp`
