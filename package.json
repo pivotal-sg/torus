@@ -4,6 +4,7 @@
   "description": "an empty project to start your phaser game with typescript",
   "main": "index.js",
   "scripts": {
+    "gulp": "./node_modules/gulp/bin/gulp.js",
     "test": "mocha -r ts-node/register -r jsdom-global/register spec/**/*.ts"
   },
   "repository": {
@@ -19,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "del": "^2.2.0",
-    "gulp": "^3.9.1",
+    "gulp": "github:gulpjs/gulp#4.0",
     "gulp-concat": "^2.6.0",
     "gulp-jsonmin": "^1.1.0",
     "gulp-typescript": "^2.13.4",

@@ -4,7 +4,7 @@
 
 ## Usage
 
-1. Run `npm install && gulp`
+1. Run `npm install && npm run gulp`
 
 1. Open [http://localhost:8080](http://localhost:8080) to see your game, code changes will cause the page to automatically reload
 
