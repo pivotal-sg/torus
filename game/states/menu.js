@@ -33,6 +33,7 @@ var Menu = (function (_super) {
     };
     Menu.prototype.update = function () {
         if (this.spaceKey.isDown) {
+            this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
             this.game.state.start('Game');
         }
     };
