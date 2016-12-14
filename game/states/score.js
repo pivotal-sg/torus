@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var INPUT_WIDTH = 300;
+var INPUT_WIDTH = 500;
 var titleFontStyle = {
     font: '50px VT323',
     fill: '#8C5C9E'
@@ -33,7 +33,8 @@ var Score = (function (_super) {
             backgroundColor: '#0000000',
             font: '60px VT323',
             fill: '#FFB83B',
-            cursorColor: '#FFB83B'
+            cursorColor: '#FFB83B',
+            max: "20"
         });
         this.inputName.blockInput = false;
         this.inputName.startFocus();
