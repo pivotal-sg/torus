@@ -4,6 +4,7 @@ import Group = Phaser.Group;
 import Color = Phaser.Color;
 import TileSprite = Phaser.TileSprite;
 import {Formatter} from "../helpers/formatter";
+import {GATracker} from "../helpers/ga_tracker";
 
 const VELOCITY = 100;
 const INITIAL_OBSTACLE_SPEED = 100;
@@ -21,6 +22,7 @@ export class Game extends Phaser.State {
     formatter = new Formatter();
     totalPausedTime = 0;
     score = "";
+    gaTracker = new GATracker();
 
     create() {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -37,6 +39,8 @@ export class Game extends Phaser.State {
         this.resetTime();
         this.game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, this.addObstacles, this, NUM_OF_OBSTACLES_ADD);
         this.game.time.events.start();
+
+        this.gaTracker.sendPageView();
     }
 
     update() {

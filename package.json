@@ -19,6 +19,7 @@
   "author": "John Rees",
   "license": "MIT",
   "dependencies": {
+    "@types/google.analytics": "0.0.28",
     "del": "^2.2.0",
     "gulp-concat": "^2.6.0",
     "gulp-jsonmin": "^1.1.0",

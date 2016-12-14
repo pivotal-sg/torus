@@ -7,6 +7,7 @@ import { Menu } from './states/menu';
 import { Game } from './states/game';
 import { Score } from "./states/score";
 
+
 export class App extends Phaser.Game {
   constructor() {
     super(800, 600, Phaser.AUTO);
