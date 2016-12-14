@@ -12,6 +12,7 @@ install:
 script:
   - git status
   - gulp --version
+  - npm run gulp -v
   - npm run gulp release
 after_failure:
   - cat /home/travis/build/pivotal-sg/torus/npm-debug.log

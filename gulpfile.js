@@ -74,9 +74,10 @@ gulp.task('verify', (done) => {
   let tsResult = tsProject.src().pipe(tsc(tsProject));
   return tsResult.js
     .on('error', function (error) {
+      console.log("ERROR ZPMG");
       process.exit(1);
       done();
-    }).on('success', () => done());
+    });
 });
 
 gulp.task('test', (cb) => {
