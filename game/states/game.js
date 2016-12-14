@@ -7,6 +7,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var player_1 = require('../prefabs/player');
 var random_generator_1 = require('../helpers/random_generator');
 var formatter_1 = require("../helpers/formatter");
+var ga_tracker_1 = require("../helpers/ga_tracker");
 var VELOCITY = 100;
 var INITIAL_OBSTACLE_SPEED = 100;
 var NUM_OF_OBSTACLES_INITIAL = 3;
@@ -21,6 +22,7 @@ var Game = (function (_super) {
         this.formatter = new formatter_1.Formatter();
         this.totalPausedTime = 0;
         this.score = "";
+        this.gaTracker = new ga_tracker_1.GATracker();
     }
     Game.prototype.create = function () {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -33,6 +35,7 @@ var Game = (function (_super) {
         this.resetTime();
         this.game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, this.addObstacles, this, NUM_OF_OBSTACLES_ADD);
         this.game.time.events.start();
+        this.gaTracker.sendPageView();
     };
     Game.prototype.update = function () {
         this.game.physics.arcade.collide(this.player, this.obstacles, this.reset, null, this);
