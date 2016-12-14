@@ -20,6 +20,7 @@ var Game = (function (_super) {
         this.randomGenerator = new random_generator_1.RandomGenerator();
         this.formatter = new formatter_1.Formatter();
         this.totalPausedTime = 0;
+        this.score = "";
     }
     Game.prototype.create = function () {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -57,11 +58,12 @@ var Game = (function (_super) {
         }
     };
     Game.prototype.render = function () {
-        this.game.debug.text(this.formatter.formatTime(this.getGameTime()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.score = this.formatter.formatTime(this.getGameTime());
+        this.game.debug.text(this.score, SCREEN_WIDTH - 80, 30, "#ffffff");
     };
     Game.prototype.reset = function (player) {
         player.kill();
-        this.game.state.start('Menu');
+        this.game.state.start('Score', true, false, this.score);
     };
     Game.prototype.resetTime = function () {
         this.game.time.reset();
