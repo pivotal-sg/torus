@@ -3,7 +3,6 @@ const INITIAL_X_SPEED = -100;
 export class Player extends Phaser.Sprite {
 
   cursors;
-  wasd;
   speed: number = 220;
 
   constructor(game: Phaser.Game, x: number, y: number) {
@@ -15,14 +14,6 @@ export class Player extends Phaser.Sprite {
     this.body.collideWorldBounds = true;
 
     this.cursors = this.game.input.keyboard.createCursorKeys();
-    this.wasd = {
-      up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
-      left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-      down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
-      right: this.game.input.keyboard.addKey(Phaser.Keyboard.D),
-      space: this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
-    };
-
   }
 
   moveLeft() {
@@ -50,23 +41,21 @@ export class Player extends Phaser.Sprite {
   }
 
   update() {
-    // this.game.physics.arcade.collide(this, this.platformsLayer);
-
     let actions: Function[] = [];
 
-    if (this.cursors.left.isDown || this.wasd.left.isDown) {
+    if (this.cursors.left.isDown) {
       actions.push(this.moveLeft.bind(this));
     }
 
-    if (this.cursors.right.isDown || this.wasd.right.isDown) {
+    if (this.cursors.right.isDown) {
       actions.push(this.moveRight.bind(this));
     }
 
-    if (this.cursors.up.isDown || this.wasd.up.isDown) {
+    if (this.cursors.up.isDown) {
       actions.push(this.moveUpwards.bind(this));
     }
 
-    if (this.cursors.down.isDown || this.wasd.down.isDown) {
+    if (this.cursors.down.isDown) {
       actions.push(this.moveDownwards.bind(this));
     }
 

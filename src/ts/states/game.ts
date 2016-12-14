@@ -20,6 +20,7 @@ export class Game extends Phaser.State {
     randomGenerator = new RandomGenerator();
     formatter = new Formatter();
     totalPausedTime = 0;
+    score = "";
 
     create() {
         this.world.resize(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -82,12 +83,13 @@ export class Game extends Phaser.State {
     }
 
     render() {
-        this.game.debug.text(this.formatter.formatTime(this.getGameTime()), SCREEN_WIDTH - 80, 30, "#ffffff");
+        this.score = this.formatter.formatTime(this.getGameTime());
+        this.game.debug.text(this.score, SCREEN_WIDTH - 80, 30, "#ffffff");
     }
 
     private reset(player: Player) {
         player.kill();
-        this.game.state.start('Menu');
+        this.game.state.start('Score', true, false, this.score);
     }
 
     private resetTime() {

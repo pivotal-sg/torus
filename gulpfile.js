@@ -11,6 +11,7 @@ let gulp = require('gulp'),
   paths = {
     vendor: [
       'node_modules/phaser/dist/phaser.js',
+      'node_modules/phaser-input/build/phaser-input.js',
       'node_modules/systemjs/dist/system-polyfills.js',
       'node_modules/systemjs/dist/system.js'
     ],
