@@ -58,7 +58,9 @@ gulp.task('vendor', () => {
 });
 
 gulp.task('tsc', () => {
-  let tsProject = tsc.createProject(paths.tsConfig);
+  let tsProject = tsc.createProject(paths.tsConfig, {
+      typescript: require('typescript')
+  });
   let tsResult = tsProject.src().pipe(tsc(tsProject));
   return tsResult.js
     .pipe(gulp.dest('dist/game/'))
@@ -66,7 +68,9 @@ gulp.task('tsc', () => {
 });
 
 gulp.task('verify', (done) => {
-  let tsProject = tsc.createProject(paths.tsConfig);
+  let tsProject = tsc.createProject(paths.tsConfig, {
+      typescript: require('typescript')
+  });
   let tsResult = tsProject.src().pipe(tsc(tsProject));
   return tsResult.js
     .on('error', function (error) {
