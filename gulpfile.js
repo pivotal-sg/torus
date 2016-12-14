@@ -109,6 +109,6 @@ gulp.task('watch', () => {
 
 gulp.task('build', gulp.parallel('images', 'html', 'tilemaps', 'tsc', 'vendor'));
 gulp.task('default', gulp.parallel('build', 'connect', 'watch'));
-gulp.task('release', gulp.series('verify', 'test', 'build', (done) => {
+gulp.task('release', gulp.series('test', 'build', (done) => {
   done();
 }));
