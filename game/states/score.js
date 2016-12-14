@@ -59,6 +59,7 @@ var Score = (function (_super) {
             this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         }
         if (this.spaceKey && this.spaceKey.isDown) {
+            this.spaceKey = null;
             this.game.state.start('Game');
         }
     };
