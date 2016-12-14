@@ -34,7 +34,6 @@ gulp.task('connect', function () {
 
 gulp.task('images', () => {
   return gulp.src(paths.images)
-  // .pipe(imageMin())
     .pipe(gulp.dest('dist/assets/images/'))
     .pipe(connect.reload());
 });
@@ -50,10 +49,6 @@ gulp.task('tilemaps', () => {
     .pipe(jsonmin())
     .pipe(gulp.dest('dist/assets/tilemaps/'))
     .pipe(connect.reload());
-// return tmx.parseFile('src/assets/tilemaps/level1.tmx', function(err, map) {
-//   if (err) throw err;
-//   console.log(JSON.stringify(map));
-// })
 });
 
 gulp.task('vendor', () => {
@@ -70,13 +65,14 @@ gulp.task('tsc', () => {
     .pipe(connect.reload());
 });
 
-gulp.task('verify', () => {
+gulp.task('verify', (done) => {
   let tsProject = tsc.createProject(paths.tsConfig);
   let tsResult = tsProject.src().pipe(tsc(tsProject));
   return tsResult.js
     .on('error', function (error) {
       process.exit(1);
-    })
+      done();
+    }).on('success', () => done());
 });
 
 gulp.task('test', (cb) => {
@@ -109,4 +105,6 @@ gulp.task('watch', () => {
 
 gulp.task('build', gulp.parallel('images', 'html', 'tilemaps', 'tsc', 'vendor'));
 gulp.task('default', gulp.parallel('build', 'connect', 'watch'));
-gulp.task('release', gulp.series('verify', 'test', 'build'));
+gulp.task('release', gulp.series('verify', 'test', 'build', (done) => {
+  done();
+}));
