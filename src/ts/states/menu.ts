@@ -33,6 +33,7 @@ export class Menu extends Phaser.State {
 
   update() {
     if (this.spaceKey.isDown) {
+      this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
       this.game.state.start('Game');
     }
   }
