@@ -1,4 +1,4 @@
-const INPUT_WIDTH = 300;
+const INPUT_WIDTH = 500;
 const titleFontStyle = {
     font: '50px VT323',
     fill: '#8C5C9E'
@@ -34,8 +34,9 @@ export class Score extends Phaser.State {
             backgroundColor: '#0000000',
             font: '60px VT323',
             fill: '#FFB83B',
-            cursorColor: '#FFB83B'
-            });
+            cursorColor: '#FFB83B',
+            max: "20"
+        });
         this.inputName.blockInput = false;
         this.inputName.startFocus();
 
