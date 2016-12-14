@@ -67,6 +67,7 @@ export class Score extends Phaser.State {
         }
 
         if(this.spaceKey && this.spaceKey.isDown) {
+            this.spaceKey = null;
             this.game.state.start('Game');
         }
     }
