@@ -32,7 +32,7 @@ var HighScores = (function (_super) {
         this.score = score;
     };
     HighScores.prototype.preload = function () {
-        this.load.json('highScores', 'http://torus-api.cfapps.io/torus/highscores', true);
+        this.load.json('highScores', 'https://torus-api.cfapps.io/torus/highscores', true);
     };
     HighScores.prototype.create = function () {
         this.displayTitle();

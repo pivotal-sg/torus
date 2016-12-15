@@ -51,7 +51,7 @@ var Score = (function (_super) {
             name: this.inputName.value,
             score: this.score
         });
-        fetch('http://torus-api.cfapps.io/torus/highscores', {
+        fetch('https://torus-api.cfapps.io/torus/highscores', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
