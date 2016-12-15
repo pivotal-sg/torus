@@ -32,7 +32,7 @@ export class HighScores extends Phaser.State {
     }
 
     preload() {
-        this.load.json('highScores', 'http://torus-api.cfapps.io/torus/highscores', true);
+        this.load.json('highScores', 'https://torus-api.cfapps.io/torus/highscores', true);
     }
 
     create() {

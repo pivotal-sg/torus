@@ -57,7 +57,7 @@ export class Score extends Phaser.State {
             score: this.score
         });
 
-        fetch('http://torus-api.cfapps.io/torus/highscores', {
+        fetch('https://torus-api.cfapps.io/torus/highscores', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
