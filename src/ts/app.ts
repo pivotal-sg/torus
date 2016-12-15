@@ -6,6 +6,7 @@ import { Loading } from './states/loading';
 import { Menu } from './states/menu';
 import { Game } from './states/game';
 import { Score } from "./states/score";
+import { HighScores } from "./states/highScores";
 
 
 export class App extends Phaser.Game {
@@ -16,6 +17,7 @@ export class App extends Phaser.Game {
     this.state.add('Loading', Loading);
     this.state.add('Menu', Menu);
     this.state.add('Game', Game);
+    this.state.add('HighScores', HighScores);
     this.state.add('Score', Score);
 
     this.state.start('Boot');

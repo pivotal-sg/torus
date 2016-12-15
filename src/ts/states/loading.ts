@@ -38,7 +38,7 @@ export class Loading extends Phaser.State {
 
     // this.game.load.onLoadStart.add(this.loadStart, this);
     this.game.load.onFileComplete.add(this.fileComplete, this);
-    this.game.load.onLoadComplete.add(this.loadComplete, this);
+    this.game.load.onLoadComplete.addOnce(this.loadComplete, this);
 
 
     this.game.load.start();

@@ -20,13 +20,15 @@
   "license": "MIT",
   "dependencies": {
     "@types/google.analytics": "0.0.28",
+    "@types/whatwg-fetch": "0.0.32",
     "del": "^2.2.0",
     "gulp-concat": "^2.6.0",
     "gulp-jsonmin": "^1.1.0",
     "gulp-typescript": "^2.13.4",
     "gulp-uglify": "^1.5.3",
     "phaser": "2.4.6",
-    "systemjs": "^0.19.29"
+    "systemjs": "^0.19.29",
+    "whatwg-fetch": "^2.0.1"
   },
   "devDependencies": {
     "@types/chai": "^3.4.34",

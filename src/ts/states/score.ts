@@ -1,3 +1,7 @@
+/// <reference path="../../../node_modules/@types/whatwg-fetch/index.d.ts"/>
+
+import { Formatter } from "../helpers/formatter";
+
 const INPUT_WIDTH = 500;
 const titleFontStyle = {
     font: '50px VT323',
@@ -10,18 +14,18 @@ const subTitleFontStyle = {
 
 export class Score extends Phaser.State {
 
-    private score: string;
+    private score: number;
     private inputName: Fabrique.InputField;
     private enterKey;
-    private spaceKey;
+    private formatter = new Formatter();
 
-    init(score: string) {
+    init(score: number) {
         this.score = score;
         this.game.plugins.add (Fabrique.Plugins.InputField);
     }
 
     create() {
-        let scoreText = this.add.text(this.world.centerX, 100, `You Scored ${this.score}. Well Done!`, titleFontStyle);
+        let scoreText = this.add.text(this.world.centerX, 100, `You Scored ${this.formatter.formatTime(this.score)}. Well Done!`, titleFontStyle);
         scoreText.anchor.setTo(0.5, 0.5);
 
         let titleText = this.add.text(this.world.centerX, 150, 'Please Enter Your Name', titleFontStyle);
@@ -44,31 +48,25 @@ export class Score extends Phaser.State {
         spaceman.anchor.setTo(0.5, 0.5);
 
         this.enterKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        this.enterKey.onDown.add(this.submitScore, this);
     }
 
-    buttonClicked() {
-        this.game.state.start('Game');
+    private submitScore() {
+        let body = JSON.stringify({
+            name: this.inputName.value,
+            score: this.score
+        });
+
+        fetch('http://torus-api.cfapps.io/torus/highscores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        }).then(() => this.game.state.start('HighScores'));
     }
 
-    update() {
-        if(this.enterKey && this.enterKey.isDown) {
-            const playerName = this.inputName.value;
-            this.inputName.kill();
-            let nameText = this.add.text(this.world.centerX, 200, `Congrats ${playerName}`, titleFontStyle);
-            nameText.anchor.setTo(0.5, 0.5);
-
-            let startButton = this.add.text(this.world.centerX, this.world.height - 90, 'PRESS HERE OR SPACE TO START', subTitleFontStyle);
-            startButton.anchor.setTo(0.5, 0.5);
-            startButton.inputEnabled = true;
-            startButton.events.onInputDown.addOnce(this.buttonClicked, this);
-
-            this.enterKey = null;
-            this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        }
-
-        if(this.spaceKey && this.spaceKey.isDown) {
-            this.spaceKey = null;
-            this.game.state.start('Game');
-        }
+    shutdown() {
+        this.enterKey.reset(true);
     }
 }

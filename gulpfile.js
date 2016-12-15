@@ -10,6 +10,7 @@ let gulp = require('gulp'),
   shell = require('child_process'),
   paths = {
     vendor: [
+      'node_modules/whatwg-fetch/fetch.js',
       'node_modules/phaser/dist/phaser.js',
       'node_modules/phaser-input/build/phaser-input.js',
       'node_modules/systemjs/dist/system-polyfills.js',

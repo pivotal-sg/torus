@@ -93,7 +93,7 @@ export class Game extends Phaser.State {
 
     private reset(player: Player) {
         player.kill();
-        this.game.state.start('Score', true, false, this.score);
+        this.game.state.start('Score', true, false, this.getGameTime());
     }
 
     private resetTime() {
