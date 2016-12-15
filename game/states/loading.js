@@ -28,7 +28,7 @@ var Loading = (function (_super) {
         this.loadingText = this.add.text(this.world.centerX, this.world.centerY, 'Loading...', fontStyle);
         this.loadingText.anchor.setTo(0.5);
         this.game.load.onFileComplete.add(this.fileComplete, this);
-        this.game.load.onLoadComplete.add(this.loadComplete, this);
+        this.game.load.onLoadComplete.addOnce(this.loadComplete, this);
         this.game.load.start();
     };
     Loading.prototype.fileComplete = function (progress, cacheKey, success, totalLoaded, totalFiles) {

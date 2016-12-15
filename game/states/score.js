@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var formatter_1 = require("../helpers/formatter");
 var INPUT_WIDTH = 500;
 var titleFontStyle = {
     font: '50px VT323',
@@ -17,13 +18,14 @@ var Score = (function (_super) {
     __extends(Score, _super);
     function Score() {
         _super.apply(this, arguments);
+        this.formatter = new formatter_1.Formatter();
     }
     Score.prototype.init = function (score) {
         this.score = score;
         this.game.plugins.add(Fabrique.Plugins.InputField);
     };
     Score.prototype.create = function () {
-        var scoreText = this.add.text(this.world.centerX, 100, "You Scored " + this.score + ". Well Done!", titleFontStyle);
+        var scoreText = this.add.text(this.world.centerX, 100, "You Scored " + this.formatter.formatTime(this.score) + ". Well Done!", titleFontStyle);
         scoreText.anchor.setTo(0.5, 0.5);
         var titleText = this.add.text(this.world.centerX, 150, 'Please Enter Your Name', titleFontStyle);
         titleText.anchor.setTo(0.5, 0.5);
@@ -41,27 +43,24 @@ var Score = (function (_super) {
         var spaceman = this.game.add.image(this.world.centerX, this.world.centerY, 'spaceman');
         spaceman.anchor.setTo(0.5, 0.5);
         this.enterKey = this.game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        this.enterKey.onDown.add(this.submitScore, this);
     };
-    Score.prototype.buttonClicked = function () {
-        this.game.state.start('Game');
+    Score.prototype.submitScore = function () {
+        var _this = this;
+        var body = JSON.stringify({
+            name: this.inputName.value,
+            score: this.score
+        });
+        fetch('http://torus-api.cfapps.io/torus/highscores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        }).then(function () { return _this.game.state.start('HighScores'); });
     };
-    Score.prototype.update = function () {
-        if (this.enterKey && this.enterKey.isDown) {
-            var playerName = this.inputName.value;
-            this.inputName.kill();
-            var nameText = this.add.text(this.world.centerX, 200, "Congrats " + playerName, titleFontStyle);
-            nameText.anchor.setTo(0.5, 0.5);
-            var startButton = this.add.text(this.world.centerX, this.world.height - 90, 'PRESS HERE OR SPACE TO START', subTitleFontStyle);
-            startButton.anchor.setTo(0.5, 0.5);
-            startButton.inputEnabled = true;
-            startButton.events.onInputDown.addOnce(this.buttonClicked, this);
-            this.enterKey = null;
-            this.spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        }
-        if (this.spaceKey && this.spaceKey.isDown) {
-            this.spaceKey = null;
-            this.game.state.start('Game');
-        }
+    Score.prototype.shutdown = function () {
+        this.enterKey.reset(true);
     };
     return Score;
 }(Phaser.State));

@@ -1,3 +1,462 @@
+(function(self) {
+  'use strict';
+
+  if (self.fetch) {
+    return
+  }
+
+  var support = {
+    searchParams: 'URLSearchParams' in self,
+    iterable: 'Symbol' in self && 'iterator' in Symbol,
+    blob: 'FileReader' in self && 'Blob' in self && (function() {
+      try {
+        new Blob()
+        return true
+      } catch(e) {
+        return false
+      }
+    })(),
+    formData: 'FormData' in self,
+    arrayBuffer: 'ArrayBuffer' in self
+  }
+
+  if (support.arrayBuffer) {
+    var viewClasses = [
+      '[object Int8Array]',
+      '[object Uint8Array]',
+      '[object Uint8ClampedArray]',
+      '[object Int16Array]',
+      '[object Uint16Array]',
+      '[object Int32Array]',
+      '[object Uint32Array]',
+      '[object Float32Array]',
+      '[object Float64Array]'
+    ]
+
+    var isDataView = function(obj) {
+      return obj && DataView.prototype.isPrototypeOf(obj)
+    }
+
+    var isArrayBufferView = ArrayBuffer.isView || function(obj) {
+      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1
+    }
+  }
+
+  function normalizeName(name) {
+    if (typeof name !== 'string') {
+      name = String(name)
+    }
+    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
+      throw new TypeError('Invalid character in header field name')
+    }
+    return name.toLowerCase()
+  }
+
+  function normalizeValue(value) {
+    if (typeof value !== 'string') {
+      value = String(value)
+    }
+    return value
+  }
+
+  // Build a destructive iterator for the value list
+  function iteratorFor(items) {
+    var iterator = {
+      next: function() {
+        var value = items.shift()
+        return {done: value === undefined, value: value}
+      }
+    }
+
+    if (support.iterable) {
+      iterator[Symbol.iterator] = function() {
+        return iterator
+      }
+    }
+
+    return iterator
+  }
+
+  function Headers(headers) {
+    this.map = {}
+
+    if (headers instanceof Headers) {
+      headers.forEach(function(value, name) {
+        this.append(name, value)
+      }, this)
+
+    } else if (headers) {
+      Object.getOwnPropertyNames(headers).forEach(function(name) {
+        this.append(name, headers[name])
+      }, this)
+    }
+  }
+
+  Headers.prototype.append = function(name, value) {
+    name = normalizeName(name)
+    value = normalizeValue(value)
+    var oldValue = this.map[name]
+    this.map[name] = oldValue ? oldValue+','+value : value
+  }
+
+  Headers.prototype['delete'] = function(name) {
+    delete this.map[normalizeName(name)]
+  }
+
+  Headers.prototype.get = function(name) {
+    name = normalizeName(name)
+    return this.has(name) ? this.map[name] : null
+  }
+
+  Headers.prototype.has = function(name) {
+    return this.map.hasOwnProperty(normalizeName(name))
+  }
+
+  Headers.prototype.set = function(name, value) {
+    this.map[normalizeName(name)] = normalizeValue(value)
+  }
+
+  Headers.prototype.forEach = function(callback, thisArg) {
+    for (var name in this.map) {
+      if (this.map.hasOwnProperty(name)) {
+        callback.call(thisArg, this.map[name], name, this)
+      }
+    }
+  }
+
+  Headers.prototype.keys = function() {
+    var items = []
+    this.forEach(function(value, name) { items.push(name) })
+    return iteratorFor(items)
+  }
+
+  Headers.prototype.values = function() {
+    var items = []
+    this.forEach(function(value) { items.push(value) })
+    return iteratorFor(items)
+  }
+
+  Headers.prototype.entries = function() {
+    var items = []
+    this.forEach(function(value, name) { items.push([name, value]) })
+    return iteratorFor(items)
+  }
+
+  if (support.iterable) {
+    Headers.prototype[Symbol.iterator] = Headers.prototype.entries
+  }
+
+  function consumed(body) {
+    if (body.bodyUsed) {
+      return Promise.reject(new TypeError('Already read'))
+    }
+    body.bodyUsed = true
+  }
+
+  function fileReaderReady(reader) {
+    return new Promise(function(resolve, reject) {
+      reader.onload = function() {
+        resolve(reader.result)
+      }
+      reader.onerror = function() {
+        reject(reader.error)
+      }
+    })
+  }
+
+  function readBlobAsArrayBuffer(blob) {
+    var reader = new FileReader()
+    var promise = fileReaderReady(reader)
+    reader.readAsArrayBuffer(blob)
+    return promise
+  }
+
+  function readBlobAsText(blob) {
+    var reader = new FileReader()
+    var promise = fileReaderReady(reader)
+    reader.readAsText(blob)
+    return promise
+  }
+
+  function readArrayBufferAsText(buf) {
+    var view = new Uint8Array(buf)
+    var chars = new Array(view.length)
+
+    for (var i = 0; i < view.length; i++) {
+      chars[i] = String.fromCharCode(view[i])
+    }
+    return chars.join('')
+  }
+
+  function bufferClone(buf) {
+    if (buf.slice) {
+      return buf.slice(0)
+    } else {
+      var view = new Uint8Array(buf.byteLength)
+      view.set(new Uint8Array(buf))
+      return view.buffer
+    }
+  }
+
+  function Body() {
+    this.bodyUsed = false
+
+    this._initBody = function(body) {
+      this._bodyInit = body
+      if (!body) {
+        this._bodyText = ''
+      } else if (typeof body === 'string') {
+        this._bodyText = body
+      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+        this._bodyBlob = body
+      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+        this._bodyFormData = body
+      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+        this._bodyText = body.toString()
+      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+        this._bodyArrayBuffer = bufferClone(body.buffer)
+        // IE 10-11 can't handle a DataView body.
+        this._bodyInit = new Blob([this._bodyArrayBuffer])
+      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+        this._bodyArrayBuffer = bufferClone(body)
+      } else {
+        throw new Error('unsupported BodyInit type')
+      }
+
+      if (!this.headers.get('content-type')) {
+        if (typeof body === 'string') {
+          this.headers.set('content-type', 'text/plain;charset=UTF-8')
+        } else if (this._bodyBlob && this._bodyBlob.type) {
+          this.headers.set('content-type', this._bodyBlob.type)
+        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8')
+        }
+      }
+    }
+
+    if (support.blob) {
+      this.blob = function() {
+        var rejected = consumed(this)
+        if (rejected) {
+          return rejected
+        }
+
+        if (this._bodyBlob) {
+          return Promise.resolve(this._bodyBlob)
+        } else if (this._bodyArrayBuffer) {
+          return Promise.resolve(new Blob([this._bodyArrayBuffer]))
+        } else if (this._bodyFormData) {
+          throw new Error('could not read FormData body as blob')
+        } else {
+          return Promise.resolve(new Blob([this._bodyText]))
+        }
+      }
+
+      this.arrayBuffer = function() {
+        if (this._bodyArrayBuffer) {
+          return consumed(this) || Promise.resolve(this._bodyArrayBuffer)
+        } else {
+          return this.blob().then(readBlobAsArrayBuffer)
+        }
+      }
+    }
+
+    this.text = function() {
+      var rejected = consumed(this)
+      if (rejected) {
+        return rejected
+      }
+
+      if (this._bodyBlob) {
+        return readBlobAsText(this._bodyBlob)
+      } else if (this._bodyArrayBuffer) {
+        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer))
+      } else if (this._bodyFormData) {
+        throw new Error('could not read FormData body as text')
+      } else {
+        return Promise.resolve(this._bodyText)
+      }
+    }
+
+    if (support.formData) {
+      this.formData = function() {
+        return this.text().then(decode)
+      }
+    }
+
+    this.json = function() {
+      return this.text().then(JSON.parse)
+    }
+
+    return this
+  }
+
+  // HTTP methods whose capitalization should be normalized
+  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']
+
+  function normalizeMethod(method) {
+    var upcased = method.toUpperCase()
+    return (methods.indexOf(upcased) > -1) ? upcased : method
+  }
+
+  function Request(input, options) {
+    options = options || {}
+    var body = options.body
+
+    if (typeof input === 'string') {
+      this.url = input
+    } else {
+      if (input.bodyUsed) {
+        throw new TypeError('Already read')
+      }
+      this.url = input.url
+      this.credentials = input.credentials
+      if (!options.headers) {
+        this.headers = new Headers(input.headers)
+      }
+      this.method = input.method
+      this.mode = input.mode
+      if (!body && input._bodyInit != null) {
+        body = input._bodyInit
+        input.bodyUsed = true
+      }
+    }
+
+    this.credentials = options.credentials || this.credentials || 'omit'
+    if (options.headers || !this.headers) {
+      this.headers = new Headers(options.headers)
+    }
+    this.method = normalizeMethod(options.method || this.method || 'GET')
+    this.mode = options.mode || this.mode || null
+    this.referrer = null
+
+    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+      throw new TypeError('Body not allowed for GET or HEAD requests')
+    }
+    this._initBody(body)
+  }
+
+  Request.prototype.clone = function() {
+    return new Request(this, { body: this._bodyInit })
+  }
+
+  function decode(body) {
+    var form = new FormData()
+    body.trim().split('&').forEach(function(bytes) {
+      if (bytes) {
+        var split = bytes.split('=')
+        var name = split.shift().replace(/\+/g, ' ')
+        var value = split.join('=').replace(/\+/g, ' ')
+        form.append(decodeURIComponent(name), decodeURIComponent(value))
+      }
+    })
+    return form
+  }
+
+  function parseHeaders(rawHeaders) {
+    var headers = new Headers()
+    rawHeaders.split('\r\n').forEach(function(line) {
+      var parts = line.split(':')
+      var key = parts.shift().trim()
+      if (key) {
+        var value = parts.join(':').trim()
+        headers.append(key, value)
+      }
+    })
+    return headers
+  }
+
+  Body.call(Request.prototype)
+
+  function Response(bodyInit, options) {
+    if (!options) {
+      options = {}
+    }
+
+    this.type = 'default'
+    this.status = 'status' in options ? options.status : 200
+    this.ok = this.status >= 200 && this.status < 300
+    this.statusText = 'statusText' in options ? options.statusText : 'OK'
+    this.headers = new Headers(options.headers)
+    this.url = options.url || ''
+    this._initBody(bodyInit)
+  }
+
+  Body.call(Response.prototype)
+
+  Response.prototype.clone = function() {
+    return new Response(this._bodyInit, {
+      status: this.status,
+      statusText: this.statusText,
+      headers: new Headers(this.headers),
+      url: this.url
+    })
+  }
+
+  Response.error = function() {
+    var response = new Response(null, {status: 0, statusText: ''})
+    response.type = 'error'
+    return response
+  }
+
+  var redirectStatuses = [301, 302, 303, 307, 308]
+
+  Response.redirect = function(url, status) {
+    if (redirectStatuses.indexOf(status) === -1) {
+      throw new RangeError('Invalid status code')
+    }
+
+    return new Response(null, {status: status, headers: {location: url}})
+  }
+
+  self.Headers = Headers
+  self.Request = Request
+  self.Response = Response
+
+  self.fetch = function(input, init) {
+    return new Promise(function(resolve, reject) {
+      var request = new Request(input, init)
+      var xhr = new XMLHttpRequest()
+
+      xhr.onload = function() {
+        var options = {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+        }
+        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL')
+        var body = 'response' in xhr ? xhr.response : xhr.responseText
+        resolve(new Response(body, options))
+      }
+
+      xhr.onerror = function() {
+        reject(new TypeError('Network request failed'))
+      }
+
+      xhr.ontimeout = function() {
+        reject(new TypeError('Network request failed'))
+      }
+
+      xhr.open(request.method, request.url, true)
+
+      if (request.credentials === 'include') {
+        xhr.withCredentials = true
+      }
+
+      if ('responseType' in xhr && support.blob) {
+        xhr.responseType = 'blob'
+      }
+
+      request.headers.forEach(function(value, name) {
+        xhr.setRequestHeader(name, value)
+      })
+
+      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit)
+    })
+  }
+  self.fetch.polyfill = true
+})(typeof self !== 'undefined' ? self : this);
+
 /**
 * @author       Richard Davey <rich@photonstorm.com>
 * @copyright    2015 Photon Storm Ltd.
@@ -97538,14 +97997,19 @@ PIXI.TextureSilentFail = true;
 */
 
 /*!
- * phaser-input - version 1.2.5 
+ * phaser-input - version 1.2.6 
  * Adds input boxes to Phaser like CanvasInput, but also works for WebGL and Mobile, made for Phaser only.
  *
  * OrangeGames
- * Build at 08-08-2016
+ * Build at 14-11-2016
  * Released under MIT License 
  */
 
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Fabrique;
 (function (Fabrique) {
     (function (InputType) {
@@ -97564,11 +98028,14 @@ var Fabrique;
             this.id = id;
             this.type = type;
             this.game = game;
+            var canvasTopX = this.game.canvas.getBoundingClientRect().top + document.body.scrollTop;
             this.element = document.createElement('input');
             this.element.id = id;
             this.element.style.position = 'absolute';
-            this.element.style.top = (-100).toString() + 'px';
-            this.element.style.left = (-100).toString() + 'px';
+            this.element.style.top = canvasTopX + 'px';
+            this.element.style.left = (-20).toString() + 'px';
+            this.element.style.width = (10).toString() + 'px';
+            this.element.style.height = (10).toString() + 'px';
             this.element.value = this.value;
             this.element.type = InputType[type];
             this.element.addEventListener('focusin', function () {
@@ -97583,27 +98050,17 @@ var Fabrique;
             this.callback = callback;
             document.addEventListener('keyup', this.callback);
         };
-        /**
-         * Captures the keyboard event on keydown, used to prevent it going from input field to sprite
-         **/
         InputElement.prototype.blockKeyDownEvents = function () {
             document.addEventListener('keydown', this.preventKeyPropagation);
         };
-        /**
-        * To prevent bubbling of keyboard event from input field to sprite
-        **/
         InputElement.prototype.preventKeyPropagation = function (evt) {
             if (evt.stopPropagation) {
                 evt.stopPropagation();
             }
             else {
-                //for IE < 9
                 event.cancelBubble = true;
             }
         };
-        /**
-         * Remove listener that captures keydown keyboard events
-         **/
         InputElement.prototype.unblockKeyDownEvents = function () {
             document.removeEventListener('keydown', this.preventKeyPropagation);
         };
@@ -97642,15 +98099,15 @@ var Fabrique;
             var _this = this;
             this.element.focus();
             if (!this.game.device.desktop && this.game.device.chrome) {
-                var originalWidth = window.innerWidth, originalHeight = window.innerHeight;
-                var kbAppeared = false;
-                var interval = setInterval(function () {
-                    if (originalWidth > window.innerWidth || originalHeight > window.innerHeight) {
-                        kbAppeared = true;
+                var originalWidth_1 = window.innerWidth, originalHeight_1 = window.innerHeight;
+                var kbAppeared_1 = false;
+                var interval_1 = setInterval(function () {
+                    if (originalWidth_1 > window.innerWidth || originalHeight_1 > window.innerHeight) {
+                        kbAppeared_1 = true;
                     }
-                    if (kbAppeared && originalWidth === window.innerWidth && originalHeight === window.innerHeight) {
+                    if (kbAppeared_1 && originalWidth_1 === window.innerWidth && originalHeight_1 === window.innerHeight) {
                         _this.focusOut.dispatch();
-                        clearInterval(interval);
+                        clearInterval(interval_1);
                     }
                 }, 50);
             }
@@ -97695,14 +98152,9 @@ var Fabrique;
             this.element.setSelectionRange(pos, pos);
         };
         return InputElement;
-    })();
+    }());
     Fabrique.InputElement = InputElement;
 })(Fabrique || (Fabrique = {}));
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var Fabrique;
 (function (Fabrique) {
     var InputField = (function (_super) {
@@ -97718,14 +98170,8 @@ var Fabrique;
             this.value = '';
             this.windowScale = 1;
             this.blockInput = true;
-            /**
-             * Update function makes the cursor blink, it uses two private properties to make it toggle
-             *
-             * @returns {number}
-             */
             this.blink = true;
             this.cnt = 0;
-            //Parse the options
             this.inputOptions = inputOptions;
             this.inputOptions.width = inputOptions.width || 150;
             this.inputOptions.padding = inputOptions.padding || 0;
@@ -97736,16 +98182,14 @@ var Fabrique;
             this.inputOptions.fillAlpha = (inputOptions.fillAlpha === undefined) ? 1 : inputOptions.fillAlpha;
             this.inputOptions.selectionColor = inputOptions.selectionColor || 'rgba(179, 212, 253, 0.8)';
             this.inputOptions.zoom = (!game.device.desktop) ? inputOptions.zoom || false : false;
-            //create the input box
             this.box = new Fabrique.InputBox(this.game, inputOptions);
             this.setTexture(this.box.generateTexture());
-            //create the mask that will be used for the texts
             this.textMask = new Fabrique.TextMask(this.game, inputOptions);
             this.addChild(this.textMask);
-            //Create the hidden dom elements
             this.domElement = new Fabrique.InputElement(this.game, 'phaser-input-' + (Math.random() * 10000 | 0).toString(), this.inputOptions.type, this.value);
             this.domElement.setMax(this.inputOptions.max, this.inputOptions.min);
             this.selection = new Fabrique.SelectionHighlight(this.game, this.inputOptions);
+            this.selection.mask = this.textMask;
             this.addChild(this.selection);
             if (inputOptions.placeHolder && inputOptions.placeHolder.length > 0) {
                 this.placeHolder = new Phaser.Text(game, this.inputOptions.padding, this.inputOptions.padding, inputOptions.placeHolder, {
@@ -97803,15 +98247,6 @@ var Fabrique;
                 }
             });
         }
-        /**
-         * This is a generic input down handler for the game.
-         * if the input object is clicked, we gain focus on it and create the dom element
-         *
-         * If there was focus on the element previously, but clicked outside of it, the element will loose focus
-         * and no keyboard events will be registered anymore
-         *
-         * @param e Phaser.Pointer
-         */
         InputField.prototype.checkDown = function (e) {
             if (!this.value) {
                 this.resetText();
@@ -97846,11 +98281,11 @@ var Fabrique;
             this.blink = !this.blink;
             this.cnt = 0;
         };
-        /**
-         * Focus is lost on the input element, we disable the cursor and remove the hidden input element
-         */
         InputField.prototype.endFocus = function () {
             var _this = this;
+            if (!this.focus) {
+                return;
+            }
             this.domElement.removeEventListener();
             if (this.blockInput === true) {
                 this.domElement.unblockKeyDownEvents();
@@ -97861,7 +98296,6 @@ var Fabrique;
             }
             this.cursor.visible = false;
             if (this.game.device.desktop) {
-                //Timeout is a chrome hack
                 setTimeout(function () {
                     _this.domElement.blur();
                 }, 0);
@@ -97874,9 +98308,6 @@ var Fabrique;
                 Fabrique.Plugins.InputField.onKeyboardClose.dispatch();
             }
         };
-        /**
-         *
-         */
         InputField.prototype.startFocus = function () {
             var _this = this;
             this.focus = true;
@@ -97884,7 +98315,6 @@ var Fabrique;
                 this.placeHolder.visible = false;
             }
             if (this.game.device.desktop) {
-                //Timeout is a chrome hack
                 setTimeout(function () {
                     _this.keyUpProcessor();
                 }, 0);
@@ -97904,9 +98334,6 @@ var Fabrique;
                 this.domElement.blockKeyDownEvents();
             }
         };
-        /**
-         * Update the text value in the box, and make sure the cursor is positioned correctly
-         */
         InputField.prototype.updateText = function () {
             var text = '';
             if (this.inputOptions.type === Fabrique.InputType.password) {
@@ -97951,9 +98378,6 @@ var Fabrique;
                 }
             }
         };
-        /**
-         * Updates the position of the caret in the phaser input field
-         */
         InputField.prototype.updateCursor = function () {
             if (this.text.width > this.inputOptions.width || this.inputOptions.textAlign === 'right') {
                 this.cursor.x = this.inputOptions.padding + this.inputOptions.width;
@@ -97969,11 +98393,6 @@ var Fabrique;
                 }
             }
         };
-        /**
-         * Fetches the carrot position from the dom element. This one changes when you use the keyboard to navigate the element
-         *
-         * @returns {number}
-         */
         InputField.prototype.getCaretPosition = function () {
             var caretPosition = this.domElement.getCaretPosition();
             if (-1 === caretPosition) {
@@ -97989,11 +98408,6 @@ var Fabrique;
             this.offscreenText.setText(text.slice(0, caretPosition));
             return this.offscreenText.width;
         };
-        /**
-         * Set the caret when a click was made in the input field
-         *
-         * @param e
-         */
         InputField.prototype.setCaretOnclick = function (e) {
             var localX = (this.text.toLocal(new PIXI.Point(e.x, e.y), this.game.world)).x;
             if (this.inputOptions.textAlign && this.inputOptions.textAlign === 'center') {
@@ -98014,9 +98428,6 @@ var Fabrique;
             this.domElement.setCaretPosition(index);
             this.updateCursor();
         };
-        /**
-         * This checks if a select has been made, and if so highlight it with blue
-         */
         InputField.prototype.updateSelection = function () {
             if (this.domElement.hasSelection) {
                 var text = this.value;
@@ -98066,9 +98477,6 @@ var Fabrique;
             this.game.world.pivot.set(0, 0);
             Fabrique.Plugins.InputField.Zoomed = false;
         };
-        /**
-         * Event fired when a key is pressed, it takes the value from the hidden input field and adds it as its own
-         */
         InputField.prototype.keyListener = function (evt) {
             this.value = this.domElement.value;
             if (evt.keyCode === 13) {
@@ -98082,9 +98490,6 @@ var Fabrique;
             this.updateSelection();
             evt.preventDefault();
         };
-        /**
-         * We overwrite the destroy method because we want to delete the (hidden) dom element when the inputField was removed
-         */
         InputField.prototype.destroy = function (destroyChildren) {
             this.game.input.onDown.remove(this.checkDown, this);
             this.domElement.focusIn.removeAll();
@@ -98092,9 +98497,6 @@ var Fabrique;
             this.domElement.destroy();
             _super.prototype.destroy.call(this, destroyChildren);
         };
-        /**
-         * Resets the text to an empty value
-         */
         InputField.prototype.resetText = function () {
             this.setText();
         };
@@ -98115,7 +98517,7 @@ var Fabrique;
             this.endFocus();
         };
         return InputField;
-    })(Phaser.Sprite);
+    }(Phaser.Sprite));
     Fabrique.InputField = InputField;
 })(Fabrique || (Fabrique = {}));
 var Fabrique;
@@ -98126,7 +98528,6 @@ var Fabrique;
             _super.call(this, game, 0, 0);
             var bgColor = (inputOptions.backgroundColor) ? parseInt(inputOptions.backgroundColor.slice(1), 16) : 0xffffff, borderRadius = inputOptions.borderRadius || 0, borderColor = (inputOptions.borderColor) ? parseInt(inputOptions.borderColor.slice(1), 16) : 0x959595, alpha = inputOptions.fillAlpha, height = inputOptions.height;
             if (inputOptions.font) {
-                //fetch height from font;
                 height = Math.max(parseInt(inputOptions.font.substr(0, inputOptions.font.indexOf('px')), 10), height);
             }
             height = inputOptions.padding * 2 + height;
@@ -98142,7 +98543,7 @@ var Fabrique;
             }
         }
         return InputBox;
-    })(Phaser.Graphics);
+    }(Phaser.Graphics));
     Fabrique.InputBox = InputBox;
 })(Fabrique || (Fabrique = {}));
 var Fabrique;
@@ -98165,7 +98566,7 @@ var Fabrique;
                 ("0" + color.b.toString(16)).slice(-2), 16);
         };
         return SelectionHighlight;
-    })(Phaser.Graphics);
+    }(Phaser.Graphics));
     Fabrique.SelectionHighlight = SelectionHighlight;
 })(Fabrique || (Fabrique = {}));
 var Fabrique;
@@ -98176,20 +98577,15 @@ var Fabrique;
             _super.call(this, game, inputOptions.padding, inputOptions.padding);
             var borderRadius = inputOptions.borderRadius, height = inputOptions.height;
             if (inputOptions.font) {
-                //fetch height from font;
                 height = Math.max(parseInt(inputOptions.font.substr(0, inputOptions.font.indexOf('px')), 10), height);
             }
             var width = inputOptions.width;
+            height *= 1.3;
             this.beginFill(0x000000);
-            if (borderRadius > 0) {
-                this.drawRoundedRect(0, 0, width, height, borderRadius);
-            }
-            else {
-                this.drawRect(0, 0, width, height);
-            }
+            this.drawRect(0, 0, width, height);
         }
         return TextMask;
-    })(Phaser.Graphics);
+    }(Phaser.Graphics));
     Fabrique.TextMask = TextMask;
 })(Fabrique || (Fabrique = {}));
 var Fabrique;
@@ -98202,10 +98598,6 @@ var Fabrique;
                 _super.call(this, game, parent);
                 this.addInputFieldFactory();
             }
-            /**
-             * Extends the GameObjectFactory prototype with the support of adding InputField. this allows us to add InputField methods to the game just like any other object:
-             * game.add.InputField();
-             */
             InputField.prototype.addInputFieldFactory = function () {
                 Phaser.GameObjectFactory.prototype.inputField = function (x, y, inputOptions, group) {
                     if (group === undefined) {
@@ -98223,7 +98615,7 @@ var Fabrique;
             InputField.onKeyboardOpen = new Phaser.Signal();
             InputField.onKeyboardClose = new Phaser.Signal();
             return InputField;
-        })(Phaser.Plugin);
+        }(Phaser.Plugin));
         Plugins.InputField = InputField;
     })(Plugins = Fabrique.Plugins || (Fabrique.Plugins = {}));
 })(Fabrique || (Fabrique = {}));

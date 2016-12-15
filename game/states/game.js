@@ -66,7 +66,7 @@ var Game = (function (_super) {
     };
     Game.prototype.reset = function (player) {
         player.kill();
-        this.game.state.start('Score', true, false, this.score);
+        this.game.state.start('Score', true, false, this.getGameTime());
     };
     Game.prototype.resetTime = function () {
         this.game.time.reset();
