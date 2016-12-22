@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/pivotal-sg/torus.svg?branch=master)](https://travis-ci.org/pivotal-sg/torus)
 
-[](http://i.imgur.com/e5QvqIH.png)
+![](http://i.imgur.com/e5QvqIH.png)
 
 ## Usage
 
